@@ -22,3 +22,8 @@
 - **Gráficos**: 
 
 ## Avances
+
+## Integrantes 👥
+- **Matías** - [GitHub](https://github.com/ElSenpaiSAMA) 
+- **Candela** - [GitHub](https://github.com/candela-sv)
+- **Gustavo** - [GitHub](https://github.com/gustavosg1)
