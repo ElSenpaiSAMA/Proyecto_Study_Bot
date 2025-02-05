@@ -1,4 +1,5 @@
 # StudyBot - Virtual Study Assistant 📚🤖
+![StudyBot_logo-removebg-preview](https://github.com/user-attachments/assets/361188ef-e7b3-40d5-87cb-29fd315a1405)
 
 ## Descripción del Proyecto
 
