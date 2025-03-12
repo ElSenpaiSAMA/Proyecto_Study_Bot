@@ -1,73 +1,55 @@
 import React from "react";
-import "../styles/ToDoList.css"; // Importa los estilos CSS
+import { Box, Typography, Paper, Avatar } from "@mui/material";
 
-const ToDoList = () => {
+const App = () => {
   return (
-    <div className="container">
-      {/* Título */}
-      <h1 className="title">To Do List</h1>
-
-      {/* Contenedor principal */}
-      <div className="columns">
-        {/* Columna To Do */}
-        <div className="column">
-          <h2 className="column-title">To Do</h2>
-          <div className="task">
-            <span className="dot red"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot red"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot red"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot red"></span>
-            <div className="task-bar"></div>
-          </div>
-        </div>
-
-        {/* Columna Doing */}
-        <div className="column">
-          <h2 className="column-title">Doing</h2>
-          <div className="task">
-            <span className="dot blue"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot blue"></span>
-            <div className="task-bar"></div>
-          </div>
-        </div>
-
-        {/* Columna Done */}
-        <div className="column">
-          <h2 className="column-title">Done</h2>
-          <div className="task">
-            <span className="dot green"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot green"></span>
-            <div className="task-bar"></div>
-          </div>
-          <div className="task">
-            <span className="dot green"></span>
-            <div className="task-bar"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Línea separadora */}
-      <div className="separator"></div>
-
-      {/* Botón inferior */}
-      <div className="bottom-button">IA</div>
-    </div>
+    <Box display="flex" height="100vh">
+      <Box display="flex" flexDirection="column" flexGrow={1} bgcolor="#f5f5f5" p={3}>
+        <Typography variant="h4" sx={{ fontStyle: "italic", borderBottom: "2px solid black", pb: 1 }}>
+          To Do List
+        </Typography>
+        <Box display="flex" justifyContent="space-around" mt={2}>
+          <TaskColumn title="To Do" color="red" tasks={3} />
+          <TaskColumn title="Doing" color="blue" tasks={2} />
+          <TaskColumn title="Done" color="green" tasks={2} />
+        </Box>
+        {/* Floating AI Button */}
+        <Avatar
+          sx={{
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+            bgcolor: "#3c8c74",
+            width: 50,
+            height: 50,
+          }}
+        >
+          IA
+        </Avatar>
+      </Box>
+    </Box>
   );
 };
 
-export default ToDoList;
+const TaskColumn = ({ title, color, tasks }) => (
+  <Box display="flex" flexDirection="column" alignItems="center">
+    <Typography variant="h6" sx={{ borderBottom: "1px solid black" }}>
+      {title}
+    </Typography>
+    {[...Array(tasks)].map((_, index) => (
+      <Paper
+        key={index}
+        sx={{
+          width: 150,
+          height: 30,
+          my: 0.5,
+          borderRadius: 15,
+          borderLeft: `10px solid ${color}`,
+          bgcolor: "lightgray",
+        }}
+      />
+    ))}
+  </Box>
+);
+
+export default App;
