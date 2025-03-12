@@ -14,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<ToDoList/>}/>
             <Route path="/planificador" element={<SchedulePlanner/>}/>
+            <Route path="/tareas" element={<ToDoList/>}/>
       </Routes>
         </Box>
       </Box>
