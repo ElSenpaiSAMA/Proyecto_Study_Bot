@@ -1,5 +1,8 @@
 import LoginPage from './pages/LoginPage';
 import ToDoList from './pages/ToDoList';
+import ProgresoAcademico from './pages/ProgresoAcademico';
+import ExamGenerator from './pages/ExamGenerator';
+
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from "./components/Sidebar";
 import { Box } from '@mui/material';
@@ -11,7 +14,7 @@ function App() {
         <Sidebar/> 
         <Box flexGrow={1}>
           <Routes>
-            <Route path="/" element={<ToDoList/>}/>
+            <Route path="/" element={<ExamGenerator/>}/>
           </Routes>
         </Box>
       </Box>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, Avatar, Typography } from "@mui/material";
+import Logo from "../images/logo.jpg";
 
 const Sidebar = () => (
   <Box
@@ -13,7 +14,7 @@ const Sidebar = () => (
     }}
   >
     <Box mb={2}>
-      <img src="/mnt/data/image.png" alt="StudyBot Logo" width={120} />
+      <img src={Logo} alt="StudyBot Logo" width={120} />
     </Box>
     <Box display="flex" flexDirection="column" width="100%">
       <Button fullWidth variant="contained" sx={{ mb: 1, bgcolor: "white", color: "black" }}>

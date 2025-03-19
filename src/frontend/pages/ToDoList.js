@@ -1,7 +1,7 @@
 import React from "react";
-import { Box, Typography, Paper, Avatar } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 
-const App = () => {
+const ToDoList = () => {
   return (
     <Box display="flex" height="100vh">
       <Box display="flex" flexDirection="column" flexGrow={1} bgcolor="#f5f5f5" p={3}>
@@ -13,19 +13,6 @@ const App = () => {
           <TaskColumn title="Doing" color="blue" tasks={2} />
           <TaskColumn title="Done" color="green" tasks={2} />
         </Box>
-        {/* Floating AI Button */}
-        <Avatar
-          sx={{
-            position: "absolute",
-            bottom: 20,
-            right: 20,
-            bgcolor: "#3c8c74",
-            width: 50,
-            height: 50,
-          }}
-        >
-          IA
-        </Avatar>
       </Box>
     </Box>
   );
@@ -52,4 +39,4 @@ const TaskColumn = ({ title, color, tasks }) => (
   </Box>
 );
 
-export default App;
+export default ToDoList;

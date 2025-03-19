@@ -99,11 +99,6 @@ const ProgresoAcademico = () => {
           </div>
         </div>
       </div>
-      
-      {/* Botón IA */}
-      <div className="ia-button">
-        <span>IA</span>
-      </div>
     </div>
   );
 };
