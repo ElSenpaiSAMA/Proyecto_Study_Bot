@@ -7,9 +7,9 @@ const SchedulePlanner = () => {
   return (
     <Box display="flex" height="100vh" p={4}>
       {/* Left section: Schedule title and navigation */}
-      <Box flex={1} display="flex" flexDirection="column" alignItems="center">
-        <Typography variant="h4" gutterBottom>
-          <u>Planificador de Horarios</u>
+      <Box display="flex" flexDirection="column" flexGrow={1} bgcolor="#f5f5f5" p={3}>
+        <Typography variant="h4" sx={{ fontStyle: "italic", borderBottom: "2px solid black", pb: 1 }}>
+          Planificador de Horarios
         </Typography>
         
         {/* Date navigation */}
