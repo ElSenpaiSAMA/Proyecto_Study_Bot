@@ -8,28 +8,24 @@ function Sidebar() {
     <Box
       sx={{
         width: 250,
-        bgcolor: "#3c8c74", // Un azul oscuro elegante para el fondo
+        bgcolor: "#3c8c74", 
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         p: 2,
-        height: "100vh", // Para que ocupe toda la altura
-        boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", // Sombra sutil en el borde derecho
+        boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", 
       }}
     >
-      {/* Logo */}
       <Box mb={2}>
-        <img src={logo} alt="StudyBot Logo" width={120} />
+        <img src={logo} alt="StudyBot Logo" width={240} height={240} />
       </Box>
 
-      {/* Divider para separación visual */}
       <Divider sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: "100%", mb: 2 }} />
 
-      {/* Botones del Sidebar */}
       <Box display="flex" flexDirection="column" width="100%">
         <Button
           component={Link}
-          to="/"
+          to="/inicio"
           startIcon={<Home />}
           fullWidth
           variant="contained"

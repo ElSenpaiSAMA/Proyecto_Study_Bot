@@ -1,7 +1,10 @@
 import React from "react";
 import { Avatar } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const IAButton = () => {
+  const navigate = useNavigate();
+
   return (
     <Avatar
       sx={{
@@ -13,6 +16,7 @@ const IAButton = () => {
         height: 50,
         cursor: "pointer",
       }}
+      onClick={() => navigate("/chat")}
     >
       IA
     </Avatar>

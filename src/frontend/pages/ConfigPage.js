@@ -50,17 +50,17 @@ const ConfigPage = () => {
             <Box>
               <Typography>Nombre de Usuario</Typography>
               <TextField defaultValue="Josefina Sanchez" className="config-input" />
-              <Button variant="contained" className="config-button">Cambiar</Button>
-              <Button variant="outlined" className="config-button">Cancelar</Button>
+              <Button variant="contained" className="config-button" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cambiar</Button>
+              <Button variant="outlined" className="config-button" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cancelar</Button>
             </Box>
             <Box display="flex" flexDirection="column" alignItems="center">
-              <Avatar sx={{ width: 100, height: 100 }} />
-              <Button variant="contained">Subir una imagen</Button>
-              <Button variant="outlined">Eliminar imagen</Button>
+              <Avatar sx={{ width: 80, height: 80 }} />
+              <Button variant="contained" sx={{ padding: '6px 12px', fontSize: '14px' }}>Subir una imagen</Button>
+              <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Eliminar imagen</Button>
             </Box>
           </Box>
           <Box className="config-item">
-            <Button variant="contained" color="error">Cerrar Sesión</Button>
+            <Button variant="contained" color="error" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cerrar Sesión</Button>
           </Box>
         </Box>
 
@@ -77,8 +77,8 @@ const ConfigPage = () => {
           <Box className="config-item">
             <Typography>Cambiar Background</Typography>
             <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} />
-            <Button variant="contained">Subir una imagen</Button>
-            <Button variant="outlined">Eliminar Imagen</Button>
+            <Button variant="contained" sx={{ padding: '6px 12px', fontSize: '14px' }}>Subir una imagen</Button>
+            <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Eliminar Imagen</Button>
           </Box>
 
           <Box display="flex" justifyContent="space-between">
@@ -132,8 +132,8 @@ const ConfigPage = () => {
         </Box>
 
         <Box className="config-actions" display="flex" justifyContent="center" marginTop={3}>
-          <Button variant="contained" color="success">Guardar Cambios</Button>
-          <Button variant="outlined">Cancelar</Button>
+          <Button variant="contained" color="success" sx={{ padding: '6px 12px', fontSize: '14px' }}>Guardar Cambios</Button>
+          <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cancelar</Button>
         </Box>
       </Box>
     </Box>

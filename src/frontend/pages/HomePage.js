@@ -5,9 +5,7 @@ import '../styles/HomePage.css';
 
 const HomePage = () => {
   return (
-    <Box display="flex" height="100vh">
-      <Sidebar />
-      
+    <Box display="flex" height="100vh">      
       <Box flexGrow={1} p={3} bgcolor="#fff">
         <Typography variant="h4" sx={{ borderBottom: "2px solid black", pb: 1 }}>
           Inicio
