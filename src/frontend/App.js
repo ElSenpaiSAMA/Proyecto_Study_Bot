@@ -30,6 +30,8 @@ function Layout() {
           <Route path="/planificador" element={<SchedulePlanner />} />
           <Route path="/tareas" element={<ToDoList />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/progreso" element={<ProgresoAcademico />} />
+          <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
         {!hideIAButton && <IAButton />} 
         {!hideIAButton2 && <IAButton />} 
@@ -40,15 +42,8 @@ function Layout() {
 
 function App() {
   return (
-    <Router>  
-      <Box display="flex" height="100vh">
-        <Sidebar/> 
-        <Box flexGrow={1}>
-          <Routes>
-            <Route path="/" element={<ToDoList/>}/>
-          </Routes>
-        </Box>
-      </Box>
+    <Router>
+      <Layout />
     </Router>
   );
 }
