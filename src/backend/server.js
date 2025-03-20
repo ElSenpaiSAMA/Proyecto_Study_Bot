@@ -13,7 +13,7 @@ async function connectToDatabase() {
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "root",
+      password: "Final03fantasy",
       database: "study_manager",
     });
     console.log("Conectado a la base de datos MySQL");

@@ -3,21 +3,29 @@ import { Box } from '@mui/material';
 import LoginPage from './pages/LoginPage';
 import SchedulePlanner from './pages/SchedulePlanner';
 import ToDoList from './pages/ToDoList';
+import ConfigPage from './pages/ConfigPage';
+import HomePage from './pages/HomePage';
 import Sidebar from "./components/Sidebar";
+import IAButton from './components/IAButton';
+import { Home } from '@mui/icons-material';
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/"; // Esconde el Sidebar en la página de login
+  const hideSidebar = location.pathname === "/"; 
+  const hideIAButton = location.pathname === "/";
 
   return (
     <Box display="flex" height="100vh">
-      {!hideSidebar && <Sidebar />} {/*si !hideSideBar es falso, mostre el SideBar*/}
+      {!hideSidebar && <Sidebar />} {}
       <Box flexGrow={1}>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+          <Route path="/inicio" element={<HomePage />} />
+          <Route path="/configuracion" element={<ConfigPage />} />
           <Route path="/planificador" element={<SchedulePlanner />} />
           <Route path="/tareas" element={<ToDoList />} />
         </Routes>
+        {!hideIAButton && <IAButton />} {}
       </Box>
     </Box>
   );

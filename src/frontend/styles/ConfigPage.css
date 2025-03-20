@@ -1,0 +1,129 @@
+.config-container {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    height: 100vh; /* Ocupa toda la altura de la pantalla */
+    width: 100%;  /* Ocupa todo el ancho de la pantalla */
+    box-sizing: border-box; /* Para que el padding no afecte el tamaño total */
+}
+
+
+.config-title {
+    font-size: 28px;
+    font-weight: bold;
+    border-bottom: 2px solid black;
+    padding-bottom: 10px;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+.config-section {
+    margin-top: 20px;
+    padding: 20px;
+    border-bottom: 1px solid lightgray;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.config-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.config-select, .config-input {
+    width: 250px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.config-select:hover, .config-input:hover {
+    border-color: #64B297;
+}
+
+.config-button {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #64B297;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.config-button:hover {
+    background-color: #4b9573;
+}
+
+.config-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.config-avatar img {
+    border-radius: 50%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.config-actions {
+    display: left;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+.config-actions button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.config-actions button.save {
+    background-color: #64B297;
+    color: white;
+}
+
+.config-actions button.cancel {
+    background-color: #F44336;
+    color: white;
+}
+
+.config-actions button:hover {
+    opacity: 0.9;
+}
+
+.config-item input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.config-item label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.config-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}

@@ -1,0 +1,80 @@
+/* Contenedor principal */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: white;
+    padding: 40px;
+  }
+  
+  /* Estilos del título */
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    width: 100%;
+    text-align: left;
+    border-bottom: 2px solid black;
+    padding-bottom: 10px;
+  }
+  
+  /* Contenedor de listas */
+  .list-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    width: 80%;
+  }
+  
+  /* Cada lista */
+  .list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 45%;
+  }
+  
+  /* Títulos de lista */
+  .list-title {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid black;
+    padding-bottom: 5px;
+    width: 100%;
+  }
+  
+  /* Estilos de las tarjetas */
+  .card {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    height: 30px;
+  }
+  
+  /* Contenedor de gráficos */
+  .chart-container {
+    margin-top: 30px;
+    width: 60%;
+    text-align: center;
+  }
+  
+  /* Botón flotante IA */
+  .ia-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #3c8c74;
+    width: 50px;
+    height: 50px;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  
