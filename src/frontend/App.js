@@ -3,6 +3,9 @@ import { Box } from '@mui/material';
 import LoginPage from './pages/LoginPage';
 import SchedulePlanner from './pages/SchedulePlanner';
 import ToDoList from './pages/ToDoList';
+import ProgresoAcademico from './pages/ProgresoAcademico';
+import ExamGenerator from './pages/ExamGenerator';
+
 import ConfigPage from './pages/ConfigPage';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
@@ -37,8 +40,15 @@ function Layout() {
 
 function App() {
   return (
-    <Router>
-      <Layout />
+    <Router>  
+      <Box display="flex" height="100vh">
+        <Sidebar/> 
+        <Box flexGrow={1}>
+          <Routes>
+            <Route path="/" element={<ToDoList/>}/>
+          </Routes>
+        </Box>
+      </Box>
     </Router>
   );
 }
