@@ -16,8 +16,7 @@ import { Home } from '@mui/icons-material';
 function Layout() {
   const location = useLocation();
   const hideSidebar = location.pathname === "/"; 
-  const hideIAButton = location.pathname === "/"; 
-  const hideIAButton2 = location.pathname === "/chat"; 
+  const hideIAButton = location.pathname ===  "/chat" || location.pathname === "/";
 
   return (
     <Box display="flex" height="100vh">
@@ -34,7 +33,6 @@ function Layout() {
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
         {!hideIAButton && <IAButton />} 
-        {!hideIAButton2 && <IAButton />} 
       </Box>
     </Box>
   );
