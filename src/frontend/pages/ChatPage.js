@@ -1,42 +1,105 @@
-import React from "react";
-import { Box, Typography, Paper, Button, Avatar, Divider, TextField } from "@mui/material";
-import "../styles/ChatPage.css";
+import React, { useState } from "react";
+import { Box, Typography, Paper, Button, Avatar, TextField, IconButton } from "@mui/material";
 import { Delete } from "@mui/icons-material";
+import "../styles/ChatPage.css";
+import gato from "../assets/foto-ia.png";
+import userIcon from "../assets/logo.png";
+
 
 const ChatPage = () => {
+  const [chats, setChats] = useState([{ id: 1, messages: [] }]);
+  const [activeChat, setActiveChat] = useState(1);
+  const [input, setInput] = useState("");
+
+  const updateChatMessages = (newMessage) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChat ? { ...chat, messages: [...chat.messages, newMessage] } : chat
+      )
+    );
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+    const newMessage = { sender: "user", text: input };
+    updateChatMessages(newMessage);
+    setInput("");
+
+    try {
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
+
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.response) return;
+
+      updateChatMessages({ sender: "bot", text: data.response });
+    } catch (error) {
+      console.error("Error al obtener respuesta de la IA", error);
+    }
+  };
+
+  const createNewChat = () => {
+    const newChat = { id: Date.now(), messages: [] };
+    setChats([...chats, newChat]);
+    setActiveChat(newChat.id);
+  };
+
+  const deleteChat = (id) => {
+    setChats(chats.filter((chat) => chat.id !== id));
+    if (activeChat === id) setActiveChat(chats[0]?.id || null);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {  // Asegura que se envia solo al presionar "Enter" sin Shift
+      event.preventDefault(); // Evita saltos de línea
+      sendMessage();
+    }
+  };
+
   return (
-    <Box display="flex" height="100vh">
-      
-      <Box flexGrow={1} className="chat-container">
-        <Box className="chat-box">
-          {[...Array(4)].map((_, index) => (
-            <Box key={index} className="chat-message">
-              <Avatar className="chat-avatar" />
-              <Paper className="chat-bubble" />
+    <Box className="chat-container">
+      <Box className="chat-box">
+        <Box className="chat-messages">
+          {chats.find((chat) => chat.id === activeChat)?.messages.map((msg, index) => (
+            <Box key={index} className={`chat-message ${msg.sender}`}>
+              {msg.sender === "bot" && <Avatar className="chat-avatar" src={gato} />}
+              {msg.sender === "user" && <Avatar className="chat-avatar" src={userIcon} />}
+              <Paper className="chat-bubble">{msg.text}</Paper>
             </Box>
           ))}
         </Box>
-        
-        <Box className="chat-list">
-          <Typography className="chat-title">Chats</Typography>
-          {[...Array(6)].map((_, index) => (
-            <Box key={index} className="chat-item">
-              <Paper className="chat-preview" />
-              <Button className="delete-button">
-                <Delete />
-              </Button>
-            </Box>
-          ))}
-          <Button className="new-chat-button">Nuevo Chat</Button>
-        </Box>
-        
+
         <Box className="message-bar">
-          <TextField fullWidth placeholder="Escriba lo que quieras consultar" variant="outlined" className="input-field" />
-          <Button className="attach-button">Adjuntar Archivos</Button>
-          <Avatar className="mic-button">🎤</Avatar>
+          <TextField
+            fullWidth
+            placeholder="Escribe un mensaje..."
+            variant="outlined"
+            className="input-field"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}  // Detecta la tecla "Enter"
+          />
+          <Button onClick={sendMessage} className="send-button">Enviar</Button>
         </Box>
       </Box>
-      
+
+      {/* Lista de chats a la derecha */}
+      <Box className="chat-list">
+        <Typography className="chat-title">Chats</Typography>
+        {chats.map((chat) => (
+          <Box key={chat.id} className="chat-item" onClick={() => setActiveChat(chat.id)}>
+            <Paper className="chat-preview">Chat {chat.id}</Paper>
+            <IconButton className="delete-button" onClick={() => deleteChat(chat.id)}>
+              <Delete />
+            </IconButton>
+          </Box>
+        ))}
+        <Button className="new-chat-button" onClick={createNewChat}>Nuevo Chat</Button>
+      </Box>
     </Box>
   );
 };

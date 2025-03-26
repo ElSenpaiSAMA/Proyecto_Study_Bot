@@ -1,26 +1,27 @@
 import React from "react";
-import { Box, Button, Avatar, Typography, Divider } from "@mui/material";
+import { Box, Button, Avatar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Home, CalendarToday, Assignment, School, ShowChart, Settings } from '@mui/icons-material';
-import logo from "../assets/logo.png";
+import logo from "../assets/logoo.png";
+
 function Sidebar() {
   return (
     <Box
       sx={{
         width: 250,
-        bgcolor: "#3c8c74", 
+        bgcolor: "#98cdd5",
         display: "flex",
         flexDirection: "column",
+        height: "100%",
         alignItems: "center",
-        p: 2,
+        paddingLeft: 1,
+        paddingRight: 1,
         boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", 
       }}
     >
       <Box mb={2}>
-        <img src={logo} alt="StudyBot Logo" width={240} height={240} />
+        <img src={logo} alt="StudyBot Logo" width={240} height={200} />
       </Box>
-
-      <Divider sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: "100%", mb: 2 }} />
 
       <Box display="flex" flexDirection="column" width="100%">
         <Button
@@ -69,17 +70,28 @@ function Sidebar() {
           startIcon={<ShowChart />}
           fullWidth
           variant="contained"
-          sx={buttonStyle}       >
+          sx={buttonStyle}       
+        >
           Progreso Académico
         </Button>
       </Box>
 
-      <Divider sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: "100%", my: 2 }} />
-      <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" mt="auto" color="white" p={1}>
-        <Avatar sx={{ width: 30, height: 30 }}>JS</Avatar>
-        <Typography sx={{ flexGrow: 1, textAlign: "center", fontSize: "0.9rem", fontWeight: 500 }}>Jofesfina Sanchez</Typography>
+      <Box
+        sx={{
+          bgcolor: "#8eccd5",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 1,
+          mt: "auto",
+        }}
+      >
+        <Avatar sx={{ width: 30, height: 30 }}>HP</Avatar>
+        <Typography sx={{ flexGrow: 1, textAlign: "center", fontSize: "0.9rem", fontWeight: 500, color: "white" }}>
+          Hugo Pérez
+        </Typography>
         <Button component={Link} to="/configuracion" startIcon={<Settings />} sx={{ minWidth: 0, p: 0 }}>
-          <Avatar sx={{ bgcolor: "gray", width: 30, height: 30 }}>⚙</Avatar>
         </Button>
       </Box>
     </Box>
