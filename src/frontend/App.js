@@ -14,8 +14,13 @@ import { ConfigProvider } from '../frontend/context/ConfigContext';
 
 function Layout() {
   const location = useLocation();
+<<<<<<< HEAD
   const hideSidebar = location.pathname === "/";
   const hideIAButton = location.pathname === "/chat" || location.pathname === "/";
+=======
+  const hideSidebar = location.pathname === "/"; 
+  const hideIAButton = location.pathname ===  "/chat" || location.pathname === "/";
+>>>>>>> origin/main
 
   return (
     <Box display="flex" height="100vh">
@@ -31,7 +36,11 @@ function Layout() {
           <Route path="/progreso" element={<ProgresoAcademico />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
+<<<<<<< HEAD
         {!hideIAButton && <IAButton />}
+=======
+        {!hideIAButton && <IAButton />} 
+>>>>>>> origin/main
       </Box>
     </Box>
   );
