@@ -5,11 +5,11 @@ import "../styles/ChatPage.css";
 import gato from "../assets/foto-ia.png";
 import userIcon from "../assets/logo.png";
 
-
 const ChatPage = () => {
   const [chats, setChats] = useState([{ id: 1, messages: [] }]);
   const [activeChat, setActiveChat] = useState(1);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
   const updateChatMessages = (newMessage) => {
     setChats((prevChats) =>
@@ -24,6 +24,7 @@ const ChatPage = () => {
     const newMessage = { sender: "user", text: input };
     updateChatMessages(newMessage);
     setInput("");
+    setIsTyping(true);
 
     try {
       const response = await fetch("http://localhost:8000/chat", {
@@ -32,13 +33,21 @@ const ChatPage = () => {
         body: JSON.stringify({ message: input }),
       });
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        setIsTyping(false);
+        return;
+      }
       const data = await response.json();
-      if (!data.response) return;
+      if (!data.response) {
+        setIsTyping(false);
+        return;
+      }
 
       updateChatMessages({ sender: "bot", text: data.response });
+      setIsTyping(false);
     } catch (error) {
       console.error("Error al obtener respuesta de la IA", error);
+      setIsTyping(false);
     }
   };
 
@@ -54,8 +63,8 @@ const ChatPage = () => {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {  // Asegura que se envia solo al presionar "Enter" sin Shift
-      event.preventDefault(); // Evita saltos de línea
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       sendMessage();
     }
   };
@@ -71,6 +80,18 @@ const ChatPage = () => {
               <Paper className="chat-bubble">{msg.text}</Paper>
             </Box>
           ))}
+          {isTyping && (
+            <Box className="chat-message bot">
+              <Avatar className="chat-avatar" src={gato} />
+              <Paper className="chat-bubble">
+                <span className="typing-dots">
+                  <span className="dot dot1">.</span>
+                  <span className="dot dot2">.</span>
+                  <span className="dot dot3">.</span>
+                </span>
+              </Paper>
+            </Box>
+          )}
         </Box>
 
         <Box className="message-bar">
@@ -81,13 +102,12 @@ const ChatPage = () => {
             className="input-field"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}  // Detecta la tecla "Enter"
+            onKeyDown={handleKeyDown}
           />
           <Button onClick={sendMessage} className="send-button">Enviar</Button>
         </Box>
       </Box>
 
-      {/* Lista de chats a la derecha */}
       <Box className="chat-list">
         <Typography className="chat-title">Chats</Typography>
         {chats.map((chat) => (

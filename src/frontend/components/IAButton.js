@@ -3,6 +3,7 @@ import { Avatar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import gato from "../assets/gato.png";
 
+
 const IAButton = () => {
   const navigate = useNavigate();
 

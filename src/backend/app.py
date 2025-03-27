@@ -26,7 +26,7 @@ async def chat(request: dict):
     response = requests.post(
         OLLAMA_API_URL,
         json={
-            "model": "carol",
+            "model": "carol2",
             "prompt": f"Responde en español: {user_message}",
             "stream": False
         }
