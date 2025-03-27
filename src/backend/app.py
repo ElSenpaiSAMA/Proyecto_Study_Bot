@@ -5,8 +5,7 @@ import re
 
 app = FastAPI()
 
-# Configurar CORS para permitir solicitudes desde el frontend
-FRONTEND_URL = "http://localhost:3000"  # Cambia esto si tienes un dominio en producción
+FRONTEND_URL = "http://localhost:3000" 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL],

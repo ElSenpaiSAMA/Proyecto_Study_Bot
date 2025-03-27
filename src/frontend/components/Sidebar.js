@@ -3,20 +3,23 @@ import { Box, Button, Avatar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Home, CalendarToday, Assignment, School, ShowChart, Settings } from '@mui/icons-material';
 import logo from "../assets/logoo.png";
+import { useConfig } from "../context/ConfigContext";
 
 function Sidebar() {
+  const { config } = useConfig();
+
   return (
     <Box
       sx={{
         width: 250,
-        bgcolor: "#98cdd5",
+        bgcolor: config.colorLateral,
         display: "flex",
         flexDirection: "column",
         height: "100%",
         alignItems: "center",
         paddingLeft: 1,
         paddingRight: 1,
-        boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", 
+        boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
       <Box mb={2}>
@@ -24,61 +27,26 @@ function Sidebar() {
       </Box>
 
       <Box display="flex" flexDirection="column" width="100%">
-        <Button
-          component={Link}
-          to="/inicio"
-          startIcon={<Home />}
-          fullWidth
-          variant="contained"
-          sx={buttonStyle}
-        >
+        <Button component={Link} to="/inicio" startIcon={<Home />} fullWidth variant="contained" sx={buttonStyle}>
           Inicio
         </Button>
-        <Button
-          component={Link}
-          to="/planificador"
-          startIcon={<CalendarToday />}
-          fullWidth
-          variant="contained"
-          sx={buttonStyle}
-        >
+        <Button component={Link} to="/planificador" startIcon={<CalendarToday />} fullWidth variant="contained" sx={buttonStyle}>
           Calendario
         </Button>
-        <Button
-          component={Link}
-          to="/tareas"
-          startIcon={<Assignment />}
-          fullWidth
-          variant="contained"
-          sx={buttonStyle}
-        >
+        <Button component={Link} to="/tareas" startIcon={<Assignment />} fullWidth variant="contained" sx={buttonStyle}>
           Tareas Pendientes
         </Button>
-        <Button
-          component={Link}
-          to="/examenes"
-          startIcon={<School />}
-          fullWidth
-          variant="contained"
-          sx={buttonStyle}
-        >
+        <Button component={Link} to="/examenes" startIcon={<School />} fullWidth variant="contained" sx={buttonStyle}>
           Exámenes
         </Button>
-        <Button
-          component={Link}
-          to="/progreso"
-          startIcon={<ShowChart />}
-          fullWidth
-          variant="contained"
-          sx={buttonStyle}       
-        >
+        <Button component={Link} to="/progreso" startIcon={<ShowChart />} fullWidth variant="contained" sx={buttonStyle}>
           Progreso Académico
         </Button>
       </Box>
 
       <Box
         sx={{
-          bgcolor: "#8eccd5",
+          bgcolor: config.colorLateralFooter,
           width: "100%",
           display: "flex",
           alignItems: "center",
@@ -87,12 +55,11 @@ function Sidebar() {
           mt: "auto",
         }}
       >
-        <Avatar sx={{ width: 30, height: 30 }}>HP</Avatar>
+        <Avatar src={config.profilePic} sx={{ width: 30, height: 30 }}>{!config.profilePic && config.username[0]}</Avatar>
         <Typography sx={{ flexGrow: 1, textAlign: "center", fontSize: "0.9rem", fontWeight: 500, color: "white" }}>
-          Hugo Pérez
+          {config.username}
         </Typography>
-        <Button component={Link} to="/configuracion" startIcon={<Settings />} sx={{ minWidth: 0, p: 0 }}>
-        </Button>
+        <Button component={Link} to="/configuracion" startIcon={<Settings />} sx={{ minWidth: 0, p: 0 }} />
       </Box>
     </Box>
   );
@@ -100,15 +67,13 @@ function Sidebar() {
 
 const buttonStyle = {
   mb: 1,
-  bgcolor: "rgba(255, 255, 255, 0.15)", 
+  bgcolor: "rgba(255, 255, 255, 0.15)",
   color: "white",
-  textTransform: "none", 
+  textTransform: "none",
   justifyContent: "flex-start",
   fontSize: "0.95rem",
   fontWeight: 500,
-  '&:hover': {
-    bgcolor: "rgba(255, 255, 255, 0.25)", 
-  },
+  '&:hover': { bgcolor: "rgba(255, 255, 255, 0.25)" },
 };
 
 export default Sidebar;

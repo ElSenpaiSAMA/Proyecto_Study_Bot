@@ -1,139 +1,225 @@
 import React, { useState } from "react";
-import '../styles/ConfigPage.css'; 
-import {
-  Box,
-  Typography,
-  Select,
-  MenuItem,
-  Button,
-  Avatar,
-  TextField,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
-import IAButton from "../components/IAButton"; 
+import '../styles/ConfigPage.css';
+import { Box, Typography, Select, MenuItem, Button, Avatar, TextField } from "@mui/material";
+import { useConfig } from '../context/ConfigContext';
 
 const ConfigPage = () => {
-  const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
-  const [menuColor, setMenuColor] = useState("#BDACD");
-  const [eliminarChatColor, setEliminarChatColor] = useState("#FA5858");
-  const [subirImagenColor, setSubirImagenColor] = useState("#64B297");
-  const [eliminarImagenColor, setEliminarImagenColor] = useState("#D9D9D9");
-  const [nuevoChatColor, setNuevoChatColor] = useState("#B0ADF9");
-  const [colorLateral, setColorLateral] = useState("#64B297");
-  const [colorLateralFooter, setColorLateralFooter] = useState("#588FA");
-  const [colorBotonIA, setColorBotonIA] = useState("#64B297");
-  const [colorMensChatIA, setColorMensChatIA] = useState("#BDACD");
-  const [colorMensChatUs, setColorMensChatUs] = useState("#64B297");
+  const { config, updateConfig } = useConfig();
+
+  // Estado temporal para los cambios
+  const [tempConfig, setTempConfig] = useState({ ...config });
+  const [tempUsername, setTempUsername] = useState(config.username);
+  const [tempProfilePic, setTempProfilePic] = useState(config.profilePic);
+
+  // Manejar la subida de imagen
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setTempProfilePic(imageUrl);
+    }
+  };
+
+  // Guardar los cambios solo al hacer clic en "Guardar Cambios"
+  const handleSave = () => {
+    updateConfig({
+      ...tempConfig,
+      username: tempUsername,
+      profilePic: tempProfilePic,
+    });
+  };
+
+  // Actualizar el estado temporal sin afectar el config global
+  const updateTempConfig = (key, value) => {
+    setTempConfig((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
-    <Box display="flex" height="100vh" className="config-page">
-      <Box flexGrow={1} p={3} className="config-container">
+    <Box
+      sx={{
+        height: "100vh",
+        overflowY: "auto", // Permitir scroll si el contenido excede la altura
+        bgcolor: config.mode === "Claro" ? "#FFFFFF" : "#333333", // Fondo según modo actual
+        padding: 2, // Padding general
+        boxSizing: "border-box",
+      }}
+    >
+      <Box
+        className="config-container"
+        sx={{
+          maxWidth: "800px", // Ancho máximo para mantenerlo centrado y legible
+          margin: "0 auto", // Centrar horizontalmente
+        }}
+      >
         <Typography variant="h4" className="config-title">
           Configuración
         </Typography>
 
+        {/* Sección General */}
         <Box className="config-section">
           <Typography variant="h6">General</Typography>
           <Box className="config-item">
-            <Typography>Cambiar Idioma</Typography>
-            <Select defaultValue="Español" className="config-select">
-              <MenuItem value="Español">Español</MenuItem>
-              <MenuItem value="Inglés">Inglés</MenuItem>
-            </Select>
-          </Box>
-        </Box>
-
-        <Box className="config-section">
-          <Typography variant="h6">Usuario</Typography>
-          <Box className="config-item" display="flex" alignItems="center" justifyContent="space-between">
-            <Box>
-              <Typography>Nombre de Usuario</Typography>
-              <TextField defaultValue="Josefina Sanchez" className="config-input" />
-              <Button variant="contained" className="config-button" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cambiar</Button>
-              <Button variant="outlined" className="config-button" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cancelar</Button>
-            </Box>
-            <Box display="flex" flexDirection="column" alignItems="center">
-              <Avatar sx={{ width: 80, height: 80 }} />
-              <Button variant="contained" sx={{ padding: '6px 12px', fontSize: '14px' }}>Subir una imagen</Button>
-              <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Eliminar imagen</Button>
-            </Box>
-          </Box>
-          <Box className="config-item">
-            <Button variant="contained" color="error" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cerrar Sesión</Button>
-          </Box>
-        </Box>
-
-        <Box className="config-section">
-          <Typography variant="h6">Cambia Diseño de UI</Typography>
-          <Box className="config-item">
             <Typography>Cambiar Modo</Typography>
-            <Select defaultValue="Claro" className="config-select">
+            <Select
+              value={tempConfig.mode}
+              onChange={(e) => updateTempConfig("mode", e.target.value)}
+              className="config-select"
+            >
               <MenuItem value="Claro">Claro</MenuItem>
               <MenuItem value="Oscuro">Oscuro</MenuItem>
             </Select>
           </Box>
-
           <Box className="config-item">
             <Typography>Cambiar Background</Typography>
-            <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} />
-            <Button variant="contained" sx={{ padding: '6px 12px', fontSize: '14px' }}>Subir una imagen</Button>
-            <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Eliminar Imagen</Button>
+            <input
+              type="color"
+              value={tempConfig.backgroundColor}
+              onChange={(e) => updateTempConfig("backgroundColor", e.target.value)}
+            />
           </Box>
+        </Box>
 
-          <Box display="flex" justifyContent="space-between">
-            <Box className="config-item" flex={1}>
-              <Box display="flex" flexDirection="column" mt={1}>
-                <Box display="flex" alignItems="center" mt={0.5}>
-                  <input type="color" value={menuColor} onChange={(e) => setMenuColor(e.target.value)} />
-                  <Typography>Menu</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" mt={0.5}>
-                  <input type="color" value={eliminarChatColor} onChange={(e) => setEliminarChatColor(e.target.value)} />
-                  <Typography>Eliminar Chat</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" mt={0.5}>
-                  <input type="color" value={subirImagenColor} onChange={(e) => setSubirImagenColor(e.target.value)} />
-                  <Typography>Subir Imagen</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" mt={0.5}>
-                  <input type="color" value={eliminarImagenColor} onChange={(e) => setEliminarImagenColor(e.target.value)} />
-                  <Typography>Eliminar Imagen</Typography>
-                </Box>
+        {/* Sección Usuario */}
+        <Box className="config-section">
+          <Typography variant="h6">Usuario</Typography>
+          <Box className="config-item" sx={{ flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography>Nombre de Usuario</Typography>
+              <TextField
+                value={tempUsername}
+                onChange={(e) => setTempUsername(e.target.value)}
+                className="config-input"
+                fullWidth
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+              <Avatar src={tempProfilePic} sx={{ width: 80, height: 80 }} />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+                id="upload-profile-pic"
+              />
+              <label htmlFor="upload-profile-pic">
+                <Button variant="contained" component="span" sx={{ padding: '6px 12px', fontSize: '14px' }}>
+                  Subir una imagen
+                </Button>
+              </label>
+              <Button
+                variant="outlined"
+                onClick={() => setTempProfilePic(null)}
+                sx={{ padding: '6px 12px', fontSize: '14px' }}
+              >
+                Eliminar imagen
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Sección Diseño de UI */}
+        <Box className="config-section">
+          <Typography variant="h6">Cambia Diseño de UI</Typography>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+            <Box className="config-item" sx={{ flex: 1 }}>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.menuColor}
+                  onChange={(e) => updateTempConfig("menuColor", e.target.value)}
+                />
+                <Typography>Menu</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.eliminarChatColor}
+                  onChange={(e) => updateTempConfig("eliminarChatColor", e.target.value)}
+                />
+                <Typography>Eliminar Chat</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.subirImagenColor}
+                  onChange={(e) => updateTempConfig("subirImagenColor", e.target.value)}
+                />
+                <Typography>Subir Imagen</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.eliminarImagenColor}
+                  onChange={(e) => updateTempConfig("eliminarImagenColor", e.target.value)}
+                />
+                <Typography>Eliminar Imagen</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.nuevoChatColor}
+                  onChange={(e) => updateTempConfig("nuevoChatColor", e.target.value)}
+                />
+                <Typography>Nuevo Chat</Typography>
               </Box>
             </Box>
-
-            <Box className="config-item" flex={1}>
-              <Box display="flex" flexDirection="column">
-                <Box display="flex" alignItems="center">
-                  <input type="color" value={colorLateral} onChange={(e) => setColorLateral(e.target.value)} />
-                  <Typography>Color Lateral</Typography>
-                </Box>
-                <Box display="flex" alignItems="center">
-                  <input type="color" value={colorLateralFooter} onChange={(e) => setColorLateralFooter(e.target.value)} />
-                  <Typography>Color Lateral Footer</Typography>
-                </Box>
-                <Box display="flex" alignItems="center">
-                  <input type="color" value={colorBotonIA} onChange={(e) => setColorBotonIA(e.target.value)} />
-                  <Typography>Color Botón IA</Typography>
-                </Box>
-                <IAButton color={colorBotonIA} />
-                <Box display="flex" alignItems="center">
-                  <input type="color" value={colorMensChatIA} onChange={(e) => setColorMensChatIA(e.target.value)} />
-                  <Typography>Color Mens. Chat IA</Typography>
-                </Box>
-                <Box display="flex" alignItems="center">
-                  <input type="color" value={colorMensChatUs} onChange={(e) => setColorMensChatUs(e.target.value)} />
-                  <Typography>Color Mens. Chat Us.</Typography>
-                </Box>
+            <Box className="config-item" sx={{ flex: 1 }}>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.colorLateral}
+                  onChange={(e) => updateTempConfig("colorLateral", e.target.value)}
+                />
+                <Typography>Color Lateral</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.colorLateralFooter}
+                  onChange={(e) => updateTempConfig("colorLateralFooter", e.target.value)}
+                />
+                <Typography>Color Lateral Footer</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.colorMensChatIA}
+                  onChange={(e) => updateTempConfig("colorMensChatIA", e.target.value)}
+                />
+                <Typography>Color Mens. Chat IA</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <input
+                  type="color"
+                  value={tempConfig.colorMensChatUs}
+                  onChange={(e) => updateTempConfig("colorMensChatUs", e.target.value)}
+                />
+                <Typography>Color Mens. Chat Us.</Typography>
               </Box>
             </Box>
           </Box>
         </Box>
 
-        <Box className="config-actions" display="flex" justifyContent="center" marginTop={3}>
-          <Button variant="contained" color="success" sx={{ padding: '6px 12px', fontSize: '14px' }}>Guardar Cambios</Button>
-          <Button variant="outlined" sx={{ padding: '6px 12px', fontSize: '14px' }}>Cancelar</Button>
+        <Box className="config-actions" sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3, mb: 2 }}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleSave}
+            sx={{ padding: '6px 12px', fontSize: '14px' }}
+          >
+            Guardar Cambios
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setTempConfig({ ...config });
+              setTempUsername(config.username);
+              setTempProfilePic(config.profilePic);
+            }}
+            sx={{ padding: '6px 12px', fontSize: '14px' }}
+          >
+            Cancelar
+          </Button>
         </Box>
       </Box>
     </Box>

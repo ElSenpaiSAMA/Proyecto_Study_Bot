@@ -3,9 +3,10 @@ import { Box, Typography, Paper, Button, Avatar, TextField, IconButton } from "@
 import { Delete } from "@mui/icons-material";
 import "../styles/ChatPage.css";
 import gato from "../assets/foto-ia.png";
-import userIcon from "../assets/logo.png";
+import { useConfig } from "../context/ConfigContext";
 
 const ChatPage = () => {
+  const { config } = useConfig();
   const [chats, setChats] = useState([{ id: 1, messages: [] }]);
   const [activeChat, setActiveChat] = useState(1);
   const [input, setInput] = useState("");
@@ -70,20 +71,22 @@ const ChatPage = () => {
   };
 
   return (
-    <Box className="chat-container">
+    <Box className="chat-container" sx={{ bgcolor: config.mode === "Claro" ? "#FFFFFF" : "#333333" }}>
       <Box className="chat-box">
         <Box className="chat-messages">
           {chats.find((chat) => chat.id === activeChat)?.messages.map((msg, index) => (
             <Box key={index} className={`chat-message ${msg.sender}`}>
               {msg.sender === "bot" && <Avatar className="chat-avatar" src={gato} />}
-              {msg.sender === "user" && <Avatar className="chat-avatar" src={userIcon} />}
-              <Paper className="chat-bubble">{msg.text}</Paper>
+              {msg.sender === "user" && <Avatar className="chat-avatar" src={config.profilePic || undefined} />}
+              <Paper className="chat-bubble" sx={{ bgcolor: msg.sender === "bot" ? config.colorMensChatIA : config.colorMensChatUs }}>
+                {msg.text}
+              </Paper>
             </Box>
           ))}
           {isTyping && (
             <Box className="chat-message bot">
               <Avatar className="chat-avatar" src={gato} />
-              <Paper className="chat-bubble">
+              <Paper className="chat-bubble" sx={{ bgcolor: config.colorMensChatIA }}>
                 <span className="typing-dots">
                   <span className="dot dot1">.</span>
                   <span className="dot dot2">.</span>
@@ -113,12 +116,12 @@ const ChatPage = () => {
         {chats.map((chat) => (
           <Box key={chat.id} className="chat-item" onClick={() => setActiveChat(chat.id)}>
             <Paper className="chat-preview">Chat {chat.id}</Paper>
-            <IconButton className="delete-button" onClick={() => deleteChat(chat.id)}>
+            <IconButton className="delete-button" onClick={() => deleteChat(chat.id)} sx={{ bgcolor: config.eliminarChatColor }}>
               <Delete />
             </IconButton>
           </Box>
         ))}
-        <Button className="new-chat-button" onClick={createNewChat}>Nuevo Chat</Button>
+        <Button className="new-chat-button" onClick={createNewChat} sx={{ bgcolor: config.nuevoChatColor }}>Nuevo Chat</Button>
       </Box>
     </Box>
   );

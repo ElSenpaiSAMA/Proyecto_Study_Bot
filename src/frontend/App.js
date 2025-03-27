@@ -5,26 +5,24 @@ import SchedulePlanner from './pages/SchedulePlanner';
 import ToDoList from './pages/ToDoList';
 import ProgresoAcademico from './pages/ProgresoAcademico';
 import ExamGenerator from './pages/ExamGenerator';
-
 import ConfigPage from './pages/ConfigPage';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import Sidebar from "./components/Sidebar";
 import IAButton from './components/IAButton';
-import { Home } from '@mui/icons-material';
+import { ConfigProvider } from '../frontend/context/ConfigContext';
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/"; 
-  const hideIAButton = location.pathname === "/"; 
-  const hideIAButton2 = location.pathname === "/chat"; 
+  const hideSidebar = location.pathname === "/";
+  const hideIAButton = location.pathname === "/chat" || location.pathname === "/";
 
   return (
     <Box display="flex" height="100vh">
-      {!hideSidebar && <Sidebar />} 
+      {!hideSidebar && <Sidebar />}
       <Box flexGrow={1}>
         <Routes>
-           <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/inicio" element={<HomePage />} />
           <Route path="/configuracion" element={<ConfigPage />} />
           <Route path="/planificador" element={<SchedulePlanner />} />
@@ -33,8 +31,7 @@ function Layout() {
           <Route path="/progreso" element={<ProgresoAcademico />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
-        {!hideIAButton && <IAButton />} 
-        {!hideIAButton2 && <IAButton />} 
+        {!hideIAButton && <IAButton />}
       </Box>
     </Box>
   );
@@ -42,9 +39,11 @@ function Layout() {
 
 function App() {
   return (
-    <Router>
-      <Layout />
-    </Router>
+    <ConfigProvider> {/* Envuelve todo con ConfigProvider */}
+      <Router>
+        <Layout />
+      </Router>
+    </ConfigProvider>
   );
 }
 
