@@ -14,18 +14,22 @@ import { ConfigProvider } from '../frontend/context/ConfigContext';
 
 function Layout() {
   const location = useLocation();
-<<<<<<< HEAD
   const hideSidebar = location.pathname === "/";
   const hideIAButton = location.pathname === "/chat" || location.pathname === "/";
-=======
-  const hideSidebar = location.pathname === "/"; 
-  const hideIAButton = location.pathname ===  "/chat" || location.pathname === "/";
->>>>>>> origin/main
 
   return (
-    <Box display="flex" height="100vh">
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw", overflow: "hidden" }}>
       {!hideSidebar && <Sidebar />}
-      <Box flexGrow={1}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: "100%",
+          overflowY: "auto",
+          paddingTop: !hideSidebar ? "64px" : 0,
+          boxSizing: "border-box",
+        }}
+      >
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/inicio" element={<HomePage />} />
@@ -36,11 +40,7 @@ function Layout() {
           <Route path="/progreso" element={<ProgresoAcademico />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
-<<<<<<< HEAD
         {!hideIAButton && <IAButton />}
-=======
-        {!hideIAButton && <IAButton />} 
->>>>>>> origin/main
       </Box>
     </Box>
   );
@@ -48,7 +48,7 @@ function Layout() {
 
 function App() {
   return (
-    <ConfigProvider> {/* Envuelve todo con ConfigProvider */}
+    <ConfigProvider>
       <Router>
         <Layout />
       </Router>
