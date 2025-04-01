@@ -1,0 +1,99 @@
+.container {
+    width: 800px;
+    padding: 30px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    position: relative;
+  }
+  
+  .title {
+    font-size: 26px;
+    font-style: italic;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  
+  .chart-container {
+    position: relative;
+  }
+  
+  .chart-label {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 5;
+  }
+  
+  .chart {
+    height: 180px;
+    position: relative;
+    margin-top: 15px;
+  }
+  
+  .axis-y {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #20B2AA;
+  }
+  
+  .axis-x {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 2px;
+    background-color: #20B2AA;
+  }
+  
+  .bar-chart {
+    display: flex;
+    height: 100%;
+    align-items: flex-end;
+    padding-left: 30px;
+  }
+  
+  .bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 50px;
+  }
+  
+  .teal-bar {
+    width: 40px;
+    background-color: #B2DFDB;
+  }
+  
+  .red-bar {
+    width: 40px;
+    background-color: #FFCDD2;
+    margin-top: 6px;
+  }
+  
+  .ia-button {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #4DB6AC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+  }
