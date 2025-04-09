@@ -15,33 +15,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-const SchedulePlanner = () => {
-  const [events, setEvents] = useState(() => {
-    const savedEvents = localStorage.getItem("scheduleEvents");
-    try {
-      const parsedEvents = JSON.parse(savedEvents);
-      return Array.isArray(parsedEvents) ? parsedEvents : [];
-    } catch (e) {
-      return [];
-    }
-  });
+const SchedulePlanner = ({ events, setEvents }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [newEvent, setNewEvent] = useState({ title: "", description: "", time: "" });
   const [currentDate, setCurrentDate] = useState(new Date());
   const calendarRef = useRef(null);
-
-  useEffect(() => {
-    localStorage.setItem("scheduleEvents", JSON.stringify(events));
-    checkUpcomingEvents();
-  }, [events]);
-
-  useEffect(() => {
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      calendarApi.gotoDate(currentDate);
-    }
-  }, [currentDate]);
 
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
@@ -53,6 +32,7 @@ const SchedulePlanner = () => {
       alert("Por favor, completa el título y la hora.");
       return;
     }
+    
     const event = {
       id: Date.now().toString(),
       title: newEvent.title,
@@ -60,24 +40,32 @@ const SchedulePlanner = () => {
       start: `${selectedDate}T${newEvent.time}:00`,
       alertShown: false,
     };
-    setEvents((prevEvents) => [...prevEvents, event]);
+    
+    const updatedEvents = [...events, event];
+    setEvents(updatedEvents);
+    localStorage.setItem('scheduleEvents', JSON.stringify(updatedEvents));
+    window.dispatchEvent(new Event('storage'));
+    
     setNewEvent({ title: "", description: "", time: "" });
+    setOpenModal(false);
   };
 
   const handleDeleteEvent = (eventId) => {
-    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+    const updatedEvents = events.filter(event => event.id !== eventId);
+    setEvents(updatedEvents);
+    localStorage.setItem('scheduleEvents', JSON.stringify(updatedEvents));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const checkUpcomingEvents = () => {
-    if (!Array.isArray(events)) return;
     const now = new Date();
     events.forEach((event) => {
       const eventTime = new Date(event.start);
       const timeDiff = (eventTime - now) / (1000 * 60);
       if (timeDiff > 0 && timeDiff <= 10 && !event.alertShown) {
         alert(`¡Evento próximo! "${event.title}" comienza en ${Math.ceil(timeDiff)} minutos.`);
-        setEvents((prevEvents) =>
-          prevEvents.map((e) =>
+        setEvents(prevEvents =>
+          prevEvents.map(e =>
             e.id === event.id ? { ...e, alertShown: true } : e
           )
         );
@@ -93,6 +81,7 @@ const SchedulePlanner = () => {
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
   };
+
   const handleNextMonth = () => {
     setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
   };
@@ -100,31 +89,17 @@ const SchedulePlanner = () => {
   const monthName = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)", // Resta la altura del Sidebar
-        width: "100%",
-        bgcolor: "#f0f4f8",
+    <Box sx={{ height: "100%", p: 2 }}>
+      <Paper elevation={2} sx={{
+        p: 1,
+        mb: 2,
+        bgcolor: "primary.main",
+        color: "white",
+        borderRadius: 2,
         display: "flex",
-        flexDirection: "column",
-        p: 2,
-        boxSizing: "border-box",
-        overflow: "hidden",
-      }}
-    >
-      <Paper
-        elevation={2}
-        sx={{
-          p: 1,
-          mb: 2,
-          bgcolor: "#1976d2",
-          color: "white",
-          borderRadius: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
         <IconButton onClick={handlePrevMonth} sx={{ color: "white" }}>
           <ArrowBackIosIcon />
         </IconButton>
@@ -136,16 +111,13 @@ const SchedulePlanner = () => {
         </IconButton>
       </Paper>
 
-      <Box
-        sx={{
-          flexGrow: 1,
-          bgcolor: "white",
-          borderRadius: 2,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          p: 1,
-          overflow: "hidden",
-        }}
-      >
+      <Box sx={{
+        height: "calc(100% - 64px)",
+        bgcolor: "white",
+        borderRadius: 2,
+        boxShadow: 3,
+        p: 1,
+      }}>
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, interactionPlugin]}
@@ -163,51 +135,59 @@ const SchedulePlanner = () => {
             return isToday ? "today-highlight" : "";
           }}
           eventContent={(eventInfo) => (
-            <Box sx={{ bgcolor: "#42a5f5", color: "white", p: "1px", borderRadius: 1, fontSize: "0.7rem" }}>
-              <Typography variant="body2">{eventInfo.event.title}</Typography>
+            <Box sx={{ 
+              bgcolor: "primary.main", 
+              color: "white", 
+              p: "2px 4px", 
+              borderRadius: 1, 
+              fontSize: "0.7rem",
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {eventInfo.event.title}
             </Box>
           )}
         />
       </Box>
 
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 350,
-            bgcolor: "white",
-            p: 3,
-            borderRadius: 2,
-            boxShadow: 24,
-            border: "1px solid #1976d2",
-            maxHeight: "80vh",
-            overflowY: "auto",
-          }}
-        >
-          <Typography variant="h6" mb={1} sx={{ color: "#1976d2", fontSize: "1.1rem" }}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 350,
+          bgcolor: "background.paper",
+          p: 3,
+          borderRadius: 2,
+          boxShadow: 24,
+          outline: 'none'
+        }}>
+          <Typography variant="h6" mb={1} color="primary.main">
             Eventos - {selectedDate}
           </Typography>
+          
           <TextField
             label="Título"
             value={newEvent.title}
             onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
             fullWidth
             margin="dense"
-            variant="outlined"
-            sx={{ fontSize: "0.9rem" }}
+            size="small"
           />
+          
           <TextField
             label="Descripción"
             value={newEvent.description}
             onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
             fullWidth
             margin="dense"
-            variant="outlined"
-            sx={{ fontSize: "0.9rem" }}
+            size="small"
+            multiline
+            rows={2}
           />
+          
           <TextField
             label="Hora"
             type="time"
@@ -215,44 +195,58 @@ const SchedulePlanner = () => {
             onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
             fullWidth
             margin="dense"
-            variant="outlined"
+            size="small"
             InputLabelProps={{ shrink: true }}
-            sx={{ fontSize: "0.9rem" }}
           />
+          
           <Button
             onClick={handleAddEvent}
             variant="contained"
             color="primary"
-            sx={{ mt: 1, bgcolor: "#1976d2", "&:hover": { bgcolor: "#1565c0" }, fontSize: "0.8rem", py: 0.5 }}
+            fullWidth
+            sx={{ mt: 2 }}
           >
-            Agregar
+            Agregar Evento
           </Button>
+          
           <Box mt={2}>
-            {selectedDate &&
-            events.filter((e) => e.start.startsWith(selectedDate)).length > 0 ? (
+            {selectedDate && events.filter(e => e.start.startsWith(selectedDate)).length > 0 ? (
               events
-                .filter((e) => e.start.startsWith(selectedDate))
+                .filter(e => e.start.startsWith(selectedDate))
                 .map((event) => (
                   <Box
                     key={event.id}
-                    display="flex"
-                    alignItems="center"
-                    mb={1}
-                    sx={{ bgcolor: "#e3f2fd", p: 0.5, borderRadius: 1 }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      p: 1,
+                      mb: 1,
+                      bgcolor: "action.hover",
+                      borderRadius: 1
+                    }}
                   >
-                    <Typography sx={{ flexGrow: 1, fontSize: "0.9rem" }}>
-                      {event.start.split("T")[1].slice(0, 5)} - {event.title}
-                    </Typography>
+                    <Box>
+                      <Typography variant="body2">
+                        {event.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {event.start.split('T')[1].substring(0, 5)}
+                      </Typography>
+                    </Box>
                     <IconButton
                       onClick={() => handleDeleteEvent(event.id)}
-                      sx={{ color: "#d32f2f", p: 0.5 }}
+                      size="small"
+                      color="error"
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
                 ))
             ) : (
-              <Typography sx={{ fontSize: "0.9rem" }}>No hay eventos.</Typography>
+              <Typography variant="body2" color="text.secondary">
+                No hay eventos programados para este día.
+              </Typography>
             )}
           </Box>
         </Box>
@@ -260,22 +254,11 @@ const SchedulePlanner = () => {
 
       <style jsx global>{`
         .today-highlight {
-          background-color: #ffeb3b !important;
-          border: 2px solid #fbc02d !important;
+          background-color: #fffde7 !important;
+          border: 2px solid #ffd600 !important;
         }
-        .today-highlight:hover {
-          background-color: #fdd835 !important;
-        }
-        .fc {
-          max-width: 100%;
-          font-size: 0.8rem;
-        }
-        .fc-daygrid-day {
-          border-radius: 4px;
-          transition: background-color 0.2s;
-        }
-        .fc-daygrid-day:hover {
-          background-color: #f5f5f5;
+        .fc-daygrid-day-frame {
+          overflow: hidden;
         }
         .fc-col-header-cell {
           background-color: #1976d2 !important;
@@ -283,7 +266,11 @@ const SchedulePlanner = () => {
           font-size: 0.8rem;
         }
         .fc-daygrid-day-number {
-          fontSize: 0.75rem;
+          font-size: 0.8rem;
+          padding: 2px;
+        }
+        .fc-daygrid-event {
+          margin: 1px;
         }
       `}</style>
     </Box>
