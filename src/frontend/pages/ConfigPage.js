@@ -38,19 +38,36 @@ const ConfigPage = () => {
     <Box
       sx={{
         height: "100vh",
+<<<<<<< HEAD
         overflowY: "auto", // Permitir scroll si el contenido excede la altura
         bgcolor: config.mode === "Claro" ? "#FFFFFF" : "#333333", // Fondo según modo actual
         padding: 2, // Padding general
+=======
+        overflowY: "auto", 
+        bgcolor: config.mode === "Claro" ? "#FFFFFF" : "#333333", 
+        padding: 2, 
+>>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
         boxSizing: "border-box",
       }}
     >
       <Box
+<<<<<<< HEAD
         className="config-container"
         sx={{
           maxWidth: "800px", // Ancho máximo para mantenerlo centrado y legible
           margin: "0 auto", // Centrar horizontalmente
         }}
       >
+=======
+  className="config-container"
+  sx={{
+    maxWidth: "800px",
+    margin: "0 auto",
+    bgcolor: config.mode === "Oscuro" ? "rgba(66, 66, 66, 0.9)" : "rgba(255, 255, 255, 0.9)", // Gris oscuro o blanco
+    color: config.mode === "Oscuro" ? "#FFFFFF" : "#333333", // Texto blanco o gris oscuro
+  }}
+>
+>>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
         <Typography variant="h4" className="config-title">
           Configuración
         </Typography>
