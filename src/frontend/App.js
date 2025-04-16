@@ -10,29 +10,6 @@ import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import Sidebar from "./components/Sidebar";
 import IAButton from './components/IAButton';
-<<<<<<< HEAD
-import { ConfigProvider } from '../frontend/context/ConfigContext';
-
-function Layout() {
-  const location = useLocation();
-<<<<<<< HEAD
-  const hideSidebar = location.pathname === "/";
-  const hideIAButton = location.pathname === "/chat" || location.pathname === "/";
-=======
-  const hideSidebar = location.pathname === "/"; 
-  const hideIAButton = location.pathname ===  "/chat" || location.pathname === "/";
->>>>>>> origin/main
-
-  return (
-    <Box display="flex" height="100vh">
-      {!hideSidebar && <Sidebar />}
-      <Box flexGrow={1}>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/inicio" element={<HomePage />} />
-          <Route path="/configuracion" element={<ConfigPage />} />
-          <Route path="/planificador" element={<SchedulePlanner />} />
-=======
 import { ConfigProvider } from './context/ConfigContext';
 import { useState, useEffect } from 'react';
 
@@ -79,21 +56,13 @@ function Layout() {
             path="/planificador" 
             element={<SchedulePlanner events={events} setEvents={setEvents} />} 
           />
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
           <Route path="/tareas" element={<ToDoList />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/progreso" element={<ProgresoAcademico />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {!hideIAButton && <IAButton />}
-=======
+
         {!hideIAButton && <IAButton />} 
->>>>>>> origin/main
-=======
-        {!hideIAButton && <IAButton />}
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
       </Box>
     </Box>
   );
@@ -101,11 +70,7 @@ function Layout() {
 
 function App() {
   return (
-<<<<<<< HEAD
     <ConfigProvider> {/* Envuelve todo con ConfigProvider */}
-=======
-    <ConfigProvider>
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
       <Router>
         <Layout />
       </Router>

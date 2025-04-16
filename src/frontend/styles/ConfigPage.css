@@ -63,12 +63,4 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-<<<<<<< HEAD
-  }
-  .guardar-cambios{
-    background-color: #1976d2;
-    color: white;
-    padding: 10px 20px;
-=======
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
   }

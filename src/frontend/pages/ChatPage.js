@@ -1,17 +1,9 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-=======
 import React, { useState, useEffect, useRef } from "react";
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
 import { Box, Typography, Paper, Button, Avatar, TextField, IconButton } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import "../styles/ChatPage.css";
 import gato from "../assets/foto-ia.png";
-<<<<<<< HEAD
-import { useConfig } from "../context/ConfigContext";
-=======
 import { useConfig } from '../context/ConfigContext';
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
 
 const ChatPage = () => {
   const { config } = useConfig();
@@ -19,14 +11,11 @@ const ChatPage = () => {
   const [activeChat, setActiveChat] = useState(1);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-<<<<<<< HEAD
-=======
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats, activeChat, isTyping]);
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
 
   const updateChatMessages = (newMessage) => {
     setChats((prevChats) =>
@@ -50,22 +39,6 @@ const ChatPage = () => {
         body: JSON.stringify({ message: input }),
       });
 
-<<<<<<< HEAD
-      if (!response.ok) {
-        setIsTyping(false);
-        return;
-      }
-      const data = await response.json();
-      if (!data.response) {
-        setIsTyping(false);
-        return;
-      }
-
-      updateChatMessages({ sender: "bot", text: data.response });
-      setIsTyping(false);
-    } catch (error) {
-      console.error("Error al obtener respuesta de la IA", error);
-=======
       if (!response.ok) throw new Error("Error en la respuesta");
       const data = await response.json();
       if (!data.response) throw new Error("Respuesta vacía");
@@ -75,7 +48,6 @@ const ChatPage = () => {
       console.error("Error al obtener respuesta de la IA", error);
       updateChatMessages({ sender: "bot", text: "Hijo de Puta , intenta de nuevo hay error" });
     } finally {
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
       setIsTyping(false);
     }
   };
@@ -98,24 +70,14 @@ const ChatPage = () => {
     }
   };
 
-<<<<<<< HEAD
-  return (
-    <Box className="chat-container" sx={{ bgcolor: config.mode === "Claro" ? "#FFFFFF" : "#333333" }}>
-=======
   const isDarkMode = config.mode === "Oscuro";
 
   return (
     <Box className="chat-container" data-mode={isDarkMode ? "dark" : "light"}>
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
       <Box className="chat-box">
         <Box className="chat-messages">
           {chats.find((chat) => chat.id === activeChat)?.messages.map((msg, index) => (
             <Box key={index} className={`chat-message ${msg.sender}`}>
-<<<<<<< HEAD
-              {msg.sender === "bot" && <Avatar className="chat-avatar" src={gato} />}
-              {msg.sender === "user" && <Avatar className="chat-avatar" src={config.profilePic || undefined} />}
-              <Paper className="chat-bubble" sx={{ bgcolor: msg.sender === "bot" ? config.colorMensChatIA : config.colorMensChatUs }}>
-=======
               <Avatar
                 className="chat-avatar"
                 src={msg.sender === "bot" ? gato : config.profilePic || undefined}
@@ -127,7 +89,6 @@ const ChatPage = () => {
                   color: isDarkMode ? "#FFFFFF" : "#000000",
                 }}
               >
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
                 {msg.text}
               </Paper>
             </Box>
@@ -135,13 +96,6 @@ const ChatPage = () => {
           {isTyping && (
             <Box className="chat-message bot">
               <Avatar className="chat-avatar" src={gato} />
-<<<<<<< HEAD
-              <Paper className="chat-bubble" sx={{ bgcolor: config.colorMensChatIA }}>
-                <span className="typing-dots">
-                  <span className="dot dot1">.</span>
-                  <span className="dot dot2">.</span>
-                  <span className="dot dot3">.</span>
-=======
               <Paper
                 className="chat-bubble"
                 sx={{
@@ -153,15 +107,11 @@ const ChatPage = () => {
                   <span className="dot">.</span>
                   <span className="dot">.</span>
                   <span className="dot">.</span>
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
                 </span>
               </Paper>
             </Box>
           )}
-<<<<<<< HEAD
-=======
           <div ref={messagesEndRef} />
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
         </Box>
 
         <Box className="message-bar">
@@ -173,24 +123,6 @@ const ChatPage = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-<<<<<<< HEAD
-          />
-          <Button onClick={sendMessage} className="send-button">Enviar</Button>
-        </Box>
-      </Box>
-
-      <Box className="chat-list">
-        <Typography className="chat-title">Chats</Typography>
-        {chats.map((chat) => (
-          <Box key={chat.id} className="chat-item" onClick={() => setActiveChat(chat.id)}>
-            <Paper className="chat-preview">Chat {chat.id}</Paper>
-            <IconButton className="delete-button" onClick={() => deleteChat(chat.id)} sx={{ bgcolor: config.eliminarChatColor }}>
-              <Delete />
-            </IconButton>
-          </Box>
-        ))}
-        <Button className="new-chat-button" onClick={createNewChat} sx={{ bgcolor: config.nuevoChatColor }}>Nuevo Chat</Button>
-=======
             multiline
             maxRows={4}
             sx={{
@@ -265,7 +197,6 @@ const ChatPage = () => {
         >
           Nuevo Chat
         </Button>
->>>>>>> fec83c1c2c03013d5db03457093750f5a40a3c58
       </Box>
     </Box>
   );
