@@ -1,298 +1,265 @@
-import React, { useState, useEffect, useRef } from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import {
-  Box,
-  Typography,
+import React, { useState, useEffect } from "react";
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  Divider, 
   Button,
-  TextField,
+  useTheme,
+  Chip,
   Modal,
-  IconButton,
-  Paper,
+  TextField,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, parseISO, startOfWeek, getDay } from "date-fns";
+import { es } from "date-fns/locale";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import EventIcon from "@mui/icons-material/Event";
+import GoogleIcon from "@mui/icons-material/Google";
+import AddIcon from "@mui/icons-material/Add";
 
-const SchedulePlanner = ({ events, setEvents }) => {
+const locales = { es };
+const localizer = dateFnsLocalizer({
+  format,
+  parse: parseISO,
+  startOfWeek: date => startOfWeek(date, { weekStartsOn: 1 }),
+  getDay,
+  locales,
+});
+
+const SchedulePlanner = ({ userId }) => {
+  const [params] = useSearchParams();
+  const [googleEvents, setGoogleEvents] = useState([]);
+  const [studyEvents, setStudyEvents] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [newEvent, setNewEvent] = useState({ title: "", description: "", time: "" });
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const calendarRef = useRef(null);
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    description: "",
+    start_time: "",
+    end_time: "",
+    reminder: false
+  });
+  const theme = useTheme();
+  const [codeUsed, setCodeUsed] = useState(false);
 
-  const handleDateClick = (info) => {
-    setSelectedDate(info.dateStr);
-    setOpenModal(true);
-  };
-
-  const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.time) {
-      alert("Por favor, completa el título y la hora.");
-      return;
+  // Obtener eventos del Google Calendar
+  uuseEffect(() => {
+    const code = params.get("code");
+  
+    if (code && !loggedIn && !codeUsed) {
+      setCodeUsed(true); // evita que chame mais de uma vez
+  
+      axios.post("http://localhost:5000/calendar/exchange-code", { code })
+        .then((res) => {
+          console.log("Eventos recebidos:", res.data);
+  
+          const formattedEvents = res.data.map((event) => ({
+            title: event.summary || "Sin título",
+            start: parseISO(event.start),
+            end: parseISO(event.end || event.start),
+            allDay: event.allDay,
+            isGoogleEvent: true
+          }));
+  
+          setGoogleEvents(formattedEvents);
+          setLoggedIn(true);
+        })
+        .catch((error) => {
+          console.error("Erro ao trocar o código:", error.response?.data || error.message);
+        });
     }
-    
-    const event = {
-      id: Date.now().toString(),
-      title: newEvent.title,
-      description: newEvent.description,
-      start: `${selectedDate}T${newEvent.time}:00`,
-      alertShown: false,
-    };
-    
-    const updatedEvents = [...events, event];
-    setEvents(updatedEvents);
-    localStorage.setItem('scheduleEvents', JSON.stringify(updatedEvents));
-    window.dispatchEvent(new Event('storage'));
-    
-    setNewEvent({ title: "", description: "", time: "" });
-    setOpenModal(false);
-  };
+  }, [params, loggedIn, codeUsed]); 
 
-  const handleDeleteEvent = (eventId) => {
-    const updatedEvents = events.filter(event => event.id !== eventId);
-    setEvents(updatedEvents);
-    localStorage.setItem('scheduleEvents', JSON.stringify(updatedEvents));
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  const checkUpcomingEvents = () => {
-    const now = new Date();
-    events.forEach((event) => {
-      const eventTime = new Date(event.start);
-      const timeDiff = (eventTime - now) / (1000 * 60);
-      if (timeDiff > 0 && timeDiff <= 10 && !event.alertShown) {
-        alert(`¡Evento próximo! "${event.title}" comienza en ${Math.ceil(timeDiff)} minutos.`);
-        setEvents(prevEvents =>
-          prevEvents.map(e =>
-            e.id === event.id ? { ...e, alertShown: true } : e
-          )
-        );
-      }
-    });
-  };
-
+  // Obtener eventos de estudio
   useEffect(() => {
-    const interval = setInterval(checkUpcomingEvents, 60000);
-    return () => clearInterval(interval);
-  }, [events]);
+    if (userId) {
+      axios.get(`/study-schedules/${userId}`)
+        .then(res => {
+          const formattedEvents = res.data.map(event => ({
+            title: event.title,
+            start: parseISO(event.start_time),
+            end: parseISO(event.end_time),
+            isStudyEvent: true
+          }));
+          setStudyEvents(formattedEvents);
+        })
+        .catch(console.error);
+    }
+  }, [userId]);
 
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+  const allEvents = [...googleEvents, ...studyEvents];
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNewEvent(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
+  const handleSubmit = () => {
+    axios.post("/study-schedules/", {
+      ...newEvent,
+      user_id: userId,
+      start_time: newEvent.start_time,
+      end_time: newEvent.end_time
+    })
+    .then(res => {
+      setStudyEvents(prev => [...prev, {
+        title: res.data.title,
+        start: parseISO(res.data.start_time),
+        end: parseISO(res.data.end_time),
+        isStudyEvent: true
+      }]);
+      setOpenModal(false);
+      setNewEvent({
+        title: "",
+        description: "",
+        start_time: "",
+        end_time: "",
+        reminder: false
+      });
+    })
+    .catch(console.error);
   };
-
-  const monthName = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, height: "100%" }}>
-      <Box sx={{ flex: 1, height: "100%", p: 2 }}>
-        <Paper elevation={2} sx={{
-          p: 1,
-          mb: 2,
-          bgcolor: "primary.main",
-          color: "white",
-          borderRadius: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}>
-          <IconButton onClick={handlePrevMonth} sx={{ color: "white" }}>
-            <ArrowBackIosIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ fontStyle: "italic", fontSize: "1.2rem" }}>
-            Agenda - {monthName}
-          </Typography>
-          <IconButton onClick={handleNextMonth} sx={{ color: "white" }}>
-            <ArrowForwardIosIcon />
-          </IconButton>
-        </Paper>
+    <Box sx={{ p: 4 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+        <Typography variant="h4">Mi Planificador</Typography>
+        <Box>
+          {!loggedIn && (
+            <Button
+              variant="outlined"
+              onClick={() => window.location.href = "http://localhost:5000/calendar/login"}
+              startIcon={<GoogleIcon />}
+              sx={{ mr: 2 }}
+            >
+              Conectar Google
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            onClick={() => setOpenModal(true)}
+            startIcon={<AddIcon />}
+          >
+            Nuevo Evento
+          </Button>
+        </Box>
+      </Box>
 
-        <Box sx={{
-          height: "calc(100% - 64px)",
-          bgcolor: "white",
-          borderRadius: 2,
-          boxShadow: 3,
-          p: 1,
-        }}>
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            events={events}
-            dateClick={handleDateClick}
-            height="100%"
-            initialDate={currentDate}
-            headerToolbar={false}
-            dayCellClassNames={(arg) => {
-              const isToday =
-                arg.date.getDate() === new Date().getDate() &&
-                arg.date.getMonth() === new Date().getMonth() &&
-                arg.date.getFullYear() === new Date().getFullYear();
-              return isToday ? "today-highlight" : "";
+      {/* Modal para nuevo evento */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle>Agregar Nuevo Evento de Estudio</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 2 }}>
+            <TextField
+              label="Título"
+              name="title"
+              value={newEvent.title}
+              onChange={handleInputChange}
+              fullWidth
+            />
+            <TextField
+              label="Descripción"
+              name="description"
+              value={newEvent.description}
+              onChange={handleInputChange}
+              multiline
+              rows={3}
+              fullWidth
+            />
+            <TextField
+              label="Fecha y hora de inicio"
+              type="datetime-local"
+              name="start_time"
+              value={newEvent.start_time}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+            <TextField
+              label="Fecha y hora de fin"
+              type="datetime-local"
+              name="end_time"
+              value={newEvent.end_time}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenModal(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} variant="contained">Guardar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Calendario y lista */}
+      <Box sx={{ display: "flex", gap: 4, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ flex: 7 }}>
+          <Calendar
+            localizer={localizer}
+            events={allEvents}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: "70vh" }}
+            culture="es"
+            messages={{
+              today: "Hoy",
+              previous: "Anterior",
+              next: "Siguiente",
+              month: "Mes",
+              week: "Semana",
+              day: "Día",
             }}
-            eventContent={(eventInfo) => (
-              <Box sx={{ 
-                bgcolor: "primary.main", 
-                color: "white", 
-                p: "2px 4px", 
-                borderRadius: 1, 
-                fontSize: "0.7rem",
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
-                {eventInfo.event.title}
-              </Box>
-            )}
           />
         </Box>
 
-        <Modal open={openModal} onClose={() => setOpenModal(false)}>
-          <Box sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 350,
-            bgcolor: "background.paper",
-            p: 3,
-            borderRadius: 2,
-            boxShadow: 24,
-            outline: 'none'
+        <Box sx={{ flex: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            Próximos Eventos
+          </Typography>
+          <List sx={{ 
+            bgcolor: 'background.paper',
+            borderRadius: 1,
+            p: 2,
           }}>
-            <Typography variant="h6" mb={1} color="primary.main">
-              Eventos - {selectedDate}
-            </Typography>
-            
-            <TextField
-              label="Título"
-              value={newEvent.title}
-              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-              fullWidth
-              margin="dense"
-              size="small"
-            />
-            
-            <TextField
-              label="Descripción"
-              value={newEvent.description}
-              onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-              fullWidth
-              margin="dense"
-              size="small"
-              multiline
-              rows={2}
-            />
-            
-            <TextField
-              label="Hora"
-              type="time"
-              value={newEvent.time}
-              onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-              fullWidth
-              margin="dense"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-            
-            <Button
-              onClick={handleAddEvent}
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              Agregar Evento
-            </Button>
-            
-            <Box mt={2}>
-              {selectedDate && events.filter(e => e.start.startsWith(selectedDate)).length > 0 ? (
-                events
-                  .filter(e => e.start.startsWith(selectedDate))
-                  .map((event) => (
-                    <Box
-                      key={event.id}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        p: 1,
-                        mb: 1,
-                        bgcolor: "action.hover",
-                        borderRadius: 1
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="body2">
-                          {event.title}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {event.start.split('T')[1].substring(0, 5)}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        onClick={() => handleDeleteEvent(event.id)}
-                        size="small"
-                        color="error"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
+            {allEvents
+              .sort((a, b) => a.start - b.start)
+              .slice(0, 5)
+              .map((event, index) => (
+                <div key={index}>
+                  <ListItem sx={{ py: 1.5, flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                        {event.title}
+                      </Typography>
+                      {event.isGoogleEvent && <Chip label="Google" size="small" color="primary" />}
+                      {event.isStudyEvent && <Chip label="Estudio" size="small" color="secondary" />}
                     </Box>
-                  ))
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No hay eventos programados para este día.
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        </Modal>
-
-        <style jsx global>{`
-          .today-highlight {
-            background-color: #fffde7 !important;
-            border: 2px solid #ffd600 !important;
-          }
-          .fc-daygrid-day-frame {
-            overflow: hidden;
-          }
-          .fc-col-header-cell {
-            background-color: #1976d2 !important;
-            color: white !important;
-            font-size: 0.8rem;
-          }
-          .fc-daygrid-day-number {
-            font-size: 0.8rem;
-            padding: 2px;
-          }
-          .fc-daygrid-event {
-            margin: 1px;
-          }
-        `}</style>
-      </Box>
-      <Box sx={{ width: 300, p: 2 }}>
-        <GoogleOAuthProvider clientId="886174252578-en3septhgaed7n3c0t1bp68cbgjq9uan.apps.googleusercontent.com">
-          <GoogleLogin
-            onSuccess={credentialResponse => {
-              const token = credentialResponse.credential;
-              axios.post('http://localhost:5000/api/google-calendar', { token });
-            }}
-            onError={() => {
-              console.log('Erro no login com Google');
-            }}
-          />
-        </GoogleOAuthProvider>
+                    <Typography variant="caption" color="text.secondary">
+                      {format(event.start, "dd/MM/yyyy HH:mm", { locale: es })}
+                    </Typography>
+                  </ListItem>
+                  {index < allEvents.length - 1 && <Divider />}
+                </div>
+              ))}
+          </List>
+        </Box>
       </Box>
     </Box>
   );
 };
 
 export default SchedulePlanner;
-  

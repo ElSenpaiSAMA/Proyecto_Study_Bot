@@ -1,21 +1,14 @@
-# routers/auth.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from sqlalchemy import text
+from database import get_db
 from models import User
 import bcrypt
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/register")
-def register(data: dict, db: Session = Depends(get_db)):
+async def register(data: dict, db: Session = Depends(get_db)):
     name = data.get("name")
     email = data.get("email")
     password = data.get("password")
@@ -39,23 +32,33 @@ def register(data: dict, db: Session = Depends(get_db)):
 
     return {"message": "Usuário criado com sucesso"}
 
+
 @router.post("/login")
-def login(data: dict, db: Session = Depends(get_db)):
-    email = data.get("email")
-    password = data.get("password")
+async def login(data: dict, db: Session = Depends(get_db)):
+    try:
+        email = data.get("email")
+        password = data.get("password")
 
-    if not email or not password:
-        raise HTTPException(status_code=400, detail="Email e senha obrigatórios")
+        if not email or not password:
+            raise HTTPException(status_code=400, detail="Email e senha obrigatórios")
 
-    user = db.query(User).filter_by(email=email).first()
-    if not user:
-        raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
+        # Verifique se a sessão do banco de dados está funcionando
+        test_query = db.execute(text("SELECT 1"))
+        if not test_query:
+            raise HTTPException(status_code=500, detail="Erro na conexão com o banco de dados")
 
-    if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
-        raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
 
-    return {
-        "message": "Login feito com sucesso",
-        "userId": user.id,
-        "email": user.email
-    }
+        if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
+            raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
+
+        return {
+            "message": "Login feito com sucesso",
+            "userId": user.id,
+            "email": user.email
+        }
+    except Exception as e:
+        print("Erro interno no login:", e)
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
