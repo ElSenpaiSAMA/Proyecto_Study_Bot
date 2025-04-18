@@ -61,8 +61,12 @@ function Layout() {
           <Route path="/progreso" element={<ProgresoAcademico />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
+<<<<<<< HEAD
 
         {!hideIAButton && <IAButton />} 
+=======
+        {!hideIAButton && <IAButton />}
+>>>>>>> f7af789180835ec38fde8888e07990727b727f0f
       </Box>
     </Box>
   );
@@ -70,7 +74,11 @@ function Layout() {
 
 function App() {
   return (
+<<<<<<< HEAD
     <ConfigProvider> {/* Envuelve todo con ConfigProvider */}
+=======
+    <ConfigProvider>
+>>>>>>> f7af789180835ec38fde8888e07990727b727f0f
       <Router>
         <Layout />
       </Router>

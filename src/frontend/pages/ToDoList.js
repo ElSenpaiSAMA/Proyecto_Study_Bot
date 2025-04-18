@@ -255,4 +255,8 @@ const ToDoList = () => {
   );
 };
 
+<<<<<<< HEAD
 export default ToDoList;
+=======
+export default ToDoList;
+>>>>>>> f7af789180835ec38fde8888e07990727b727f0f
