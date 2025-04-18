@@ -1,3 +1,4 @@
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -13,6 +14,8 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
 
+    study_schedules = relationship("StudySchedule", back_populates="user")
+
 class Chat(Base):
     __tablename__ = "chats"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -26,7 +29,6 @@ class Message(Base):
     chat_id = Column(Integer, ForeignKey("chats.id"))
     chat = relationship("Chat", back_populates="messages")
 
-    study_schedules = relationship("StudySchedule", back_populates="user")
 
 class StudySchedule(Base):
     __tablename__ = "study_schedules"

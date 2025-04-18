@@ -12,6 +12,7 @@ import Sidebar from "./components/Sidebar";
 import IAButton from './components/IAButton';
 import { ConfigProvider } from './context/ConfigContext';
 import { useState, useEffect } from 'react';
+import { AuthProvider } from "./context/AuthContext"; //imporación del authenticador para que todas las páginas esteen conectadas al usuario logeado
 
 function Layout() {
   const location = useLocation();
@@ -70,11 +71,13 @@ function Layout() {
 
 function App() {
   return (
+    <AuthProvider>
     <ConfigProvider>
       <Router>
         <Layout />
       </Router>
     </ConfigProvider>
+    </AuthProvider>
   );
 }
 
