@@ -52,7 +52,7 @@ const SchedulePlanner = ({ userId }) => {
   const [codeUsed, setCodeUsed] = useState(false);
 
   // Obtener eventos del Google Calendar
-  uuseEffect(() => {
+  useEffect(() => {
     const code = params.get("code");
   
     if (code && !loggedIn && !codeUsed) {
