@@ -4,7 +4,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import LanguageIcon from "@mui/icons-material/Language";
 import { useNavigate } from "react-router-dom";
 
-const App = () => {
+const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -215,4 +215,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default LoginPage;
