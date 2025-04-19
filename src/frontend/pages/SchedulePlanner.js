@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { 
-  Box, Typography, List, ListItem, Divider, Button, useTheme, Chip,
-  TextField, Stack, Dialog, DialogTitle, DialogContent, DialogActions
+  Box, Typography, List, Button, useTheme, Chip,
+  TextField, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
+  Skeleton, keyframes
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -12,6 +13,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import GoogleIcon from "@mui/icons-material/Google";
 import AddIcon from "@mui/icons-material/Add";
 import { AuthContext } from "../context/AuthContext";
+import CustomToolbar from "../components/CustomToolBar";
 
 const locales = { es };
 const localizer = dateFnsLocalizer({
@@ -22,6 +24,14 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+// 🚀 Animação de entrada
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+
+
 const SchedulePlanner = () => {
   const { userId } = useContext(AuthContext);
   const [params] = useSearchParams();
@@ -29,6 +39,8 @@ const SchedulePlanner = () => {
   const [studyEvents, setStudyEvents] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState("week");
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
@@ -38,22 +50,27 @@ const SchedulePlanner = () => {
   });
   const theme = useTheme();
   const [codeUsed, setCodeUsed] = useState(false);
+  const [loading, setLoading] = useState(true); // 🚀 Estado de loading
 
   const cargarEventos = () => {
     if (userId) {
+      setLoading(true);
       axios.get(`http://localhost:5000/study-schedules/${userId}`)
         .then(res => {
           const formattedEvents = res.data.map(event => ({
+            ...event,
             title: event.title,
             start: parseISO(event.start_time),
             end: parseISO(event.end_time),
             isStudyEvent: true
           }));
           setStudyEvents(formattedEvents);
+          setLoading(false);
         })
-        .catch(console.error);
+        .catch(() => setLoading(false));
     }
   };
+
 
   useEffect(() => {
     cargarEventos();
@@ -116,76 +133,322 @@ const SchedulePlanner = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Typography variant="h4">Mi Planificador</Typography>
-        <Box>
+    <Box sx={{ 
+      p: 4,
+      maxWidth: { xl: 1800 },
+      margin: '0 auto',
+      minHeight: '100vh',
+      animation: `${fadeIn} 0.5s ease-out` // 🚀 Animação na página toda
+    }}>
+      {/* 🚀 Cabeçalho modernizado */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        mb: 4,
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2
+      }}>
+        <Typography variant="h4" sx={{ 
+          background: 'linear-gradient(45deg, #3f51b5 30%, #2196f3 90%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontWeight: 'bold',
+          fontSize: { xs: '1.8rem', md: '2.4rem' }
+        }}>
+          Mi Planificador
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2 }}>
           {!loggedIn && (
             <Button
               variant="outlined"
               onClick={() => window.location.href = "http://localhost:5000/calendar/login"}
               startIcon={<GoogleIcon />}
-              sx={{ mr: 2 }}
+              sx={{ 
+                borderRadius: '50px',
+                textTransform: 'none',
+                px: 3,
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.shadows[2]
+                },
+                transition: 'all 0.2s'
+              }}
             >Conectar Google</Button>
           )}
           <Button
             variant="contained"
             onClick={() => setOpenModal(true)}
             startIcon={<AddIcon />}
+            sx={{
+              borderRadius: '50px',
+              textTransform: 'none',
+              px: 3,
+              boxShadow: 'none',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: theme.shadows[4]
+              },
+              transition: 'all 0.2s'
+            }}
           >Nuevo Evento</Button>
         </Box>
       </Box>
 
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>Agregar Nuevo Evento</DialogTitle>
+      {/* 🚀 Modal moderno */}
+      <Dialog 
+        open={openModal} 
+        onClose={() => setOpenModal(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 2,
+            width: '100%',
+            maxWidth: '500px',
+            background: theme.palette.background.paper,
+            boxShadow: theme.shadows[24]
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontSize: '1.5rem', 
+          fontWeight: 600,
+          background: 'linear-gradient(45deg, #3f51b5 30%, #2196f3 90%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
+          Agregar Nuevo Evento
+        </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 2 }}>
-            <TextField label="Título" name="title" value={newEvent.title} onChange={handleInputChange} fullWidth />
-            <TextField label="Descripción" name="description" value={newEvent.description} onChange={handleInputChange} multiline rows={3} fullWidth />
-            <TextField label="Fecha y hora de inicio" type="datetime-local" name="start_time" value={newEvent.start_time} onChange={handleInputChange} InputLabelProps={{ shrink: true }} fullWidth />
-            <TextField label="Fecha y hora de fin" type="datetime-local" name="end_time" value={newEvent.end_time} onChange={handleInputChange} InputLabelProps={{ shrink: true }} fullWidth />
+            <TextField 
+              variant="outlined"
+              label="Título" 
+              name="title" 
+              value={newEvent.title} 
+              onChange={handleInputChange} 
+              fullWidth 
+            />
+            <TextField
+              variant="outlined"
+              label="Descripción"
+              name="description"
+              value={newEvent.description}
+              onChange={handleInputChange}
+              multiline
+              rows={3}
+              fullWidth
+            />
+            <TextField
+              variant="outlined"
+              label="Fecha y hora de inicio"
+              type="datetime-local"
+              name="start_time"
+              value={newEvent.start_time}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+            <TextField
+              variant="outlined"
+              label="Fecha y hora de fin"
+              type="datetime-local"
+              name="end_time"
+              value={newEvent.end_time}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">Guardar</Button>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button 
+            onClick={() => setOpenModal(false)}
+            sx={{ borderRadius: '8px', px: 3 }}
+          >Cancelar</Button>
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained"
+            sx={{ 
+              borderRadius: '8px',
+              px: 3,
+              background: 'linear-gradient(45deg, #3f51b5 30%, #2196f3 90%)',
+              '&:hover': {
+                opacity: 0.9
+              }
+            }}
+          >Guardar</Button>
         </DialogActions>
       </Dialog>
 
-      <Box sx={{ display: "flex", gap: 4, flexDirection: { xs: "column", md: "row" } }}>
-        <Box sx={{ flex: 7 }}>
-          <Calendar
-            localizer={localizer}
-            events={allEvents}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: "70vh" }}
-            culture="es"
-            messages={{ today: "Hoy", previous: "Anterior", next: "Siguiente", month: "Mes", week: "Semana", day: "Día" }}
-          />
+      <Box sx={{ 
+        display: "flex", 
+        gap: 4, 
+        flexDirection: { xs: "column", md: "row" },
+        alignItems: { xs: 'center', md: 'flex-start' }
+      }}>
+        <Box sx={{ flex: 7, width: '100%' }}>
+          {loading ? (
+            <Skeleton 
+              variant="rectangular" 
+              width="100%" 
+              height="70vh" 
+              sx={{ borderRadius: 3 }} 
+            />
+          ) : (
+            <Calendar
+              localizer={localizer}
+              events={allEvents}
+              startAccessor="start"
+              endAccessor="end"
+              culture="es"
+              date={currentDate}
+              view={currentView}
+              onNavigate={(date) => setCurrentDate(date)}
+              onView={(view) => setCurrentView(view)}
+              messages={{
+                today: "Hoy",
+                previous: "Anterior",
+                next: "Siguiente",
+                month: "Mes",
+                week: "Semana",
+                day: "Día"
+              }}
+              views={["month", "week", "day"]}
+              eventPropGetter={(event) => ({
+                style: {
+                  backgroundColor: event.isGoogleEvent 
+                    ? '#4285F4' 
+                    : event.isStudyEvent 
+                      ? theme.palette.secondary.main 
+                      : theme.palette.primary.main,
+                  borderRadius: '8px',
+                  color: 'white',
+                  border: 'none',
+                  boxShadow: theme.shadows[2]
+                }
+              })}
+              components={{
+                toolbar: CustomToolbar
+              }}
+              dayPropGetter={(date) => ({
+                style: {
+                  backgroundColor: date.getDate() === new Date().getDate() && 
+                                  date.getMonth() === new Date().getMonth() && 
+                                  date.getFullYear() === new Date().getFullYear()
+                    ? theme.palette.primary.light
+                    : 'transparent',
+                  borderRadius: '8px',
+                  margin: '2px'
+                }
+              })}
+              style={{ 
+                height: "70vh",
+                borderRadius: '16px',
+                boxShadow: theme.shadows[3],
+                backgroundColor: theme.palette.background.paper,
+                '& .rbc-header': {
+                  backgroundColor: theme.palette.primary.main,
+                  color: 'white',
+                  padding: '10px',
+                  border: 'none',
+                  textTransform: 'uppercase'
+                },
+                '& .rbc-day-bg + .rbc-day-bg': {
+                  borderLeft: `1px solid ${theme.palette.divider}`
+                },
+                '& .rbc-month-view': {
+                  border: 'none'
+                },
+                '& .rbc-header': {
+                  borderBottom: 'none'
+                }
+              }}
+            />
+          )}
         </Box>
-        <Box sx={{ flex: 3 }}>
-          <Typography variant="h5" gutterBottom>Próximos Eventos</Typography>
-          <List sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 2 }}>
-            {allEvents
-              .sort((a, b) => a.start - b.start)
-              .slice(0, 5)
-              .map((event, index) => (
-                <div key={index}>
-                  <ListItem sx={{ py: 1.5, flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>{event.title}</Typography>
-                      {event.isGoogleEvent && <Chip label="Google" size="small" color="primary" />}
-                      {event.isStudyEvent && <Chip label="StudyBot" size="small" color="secondary" />}
+
+        {/* 🚀 Barra lateral de eventos estilizada */}
+        <Box sx={{ 
+          flex: 3, 
+          width: '100%', 
+          maxWidth: { md: '400px' },
+          animation: `${fadeIn} 0.5s ease-out 0.2s` 
+        }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, ml: 1 }}>
+            Próximos Eventos
+          </Typography>
+          {loading ? (
+            Array(5).fill().map((_, index) => (
+              <Skeleton
+                key={index}
+                variant="rectangular"
+                height={80}
+                sx={{ 
+                  mb: 2, 
+                  borderRadius: 2 
+                }}
+              />
+            ))
+          ) : (
+            <List sx={{ 
+              bgcolor: 'background.paper', 
+              borderRadius: 2, 
+              p: 2,
+              boxShadow: theme.shadows[2]
+            }}>
+              {allEvents
+                .sort((a, b) => a.start - b.start)
+                .slice(0, 5)
+                .map((event, index) => (
+                  <Box 
+                    key={index}
+                    sx={{
+                      mb: 2,
+                      p: 2,
+                      borderRadius: 2,
+                      backgroundColor: theme.palette.grey[100],
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: theme.shadows[2]
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {event.title}
+                      </Typography>
+                      {event.isGoogleEvent && (
+                        <Chip 
+                          label="Google" 
+                          size="small" 
+                          sx={{ 
+                            background: '#4285F4',
+                            color: 'white',
+                            fontWeight: 500
+                          }} 
+                        />
+                      )}
+                      {event.isStudyEvent && (
+                        <Chip 
+                          label="StudyBot" 
+                          size="small" 
+                          sx={{ 
+                            background: theme.palette.secondary.main,
+                            color: 'white',
+                            fontWeight: 500
+                          }} 
+                        />
+                      )}
                     </Box>
                     <Typography variant="caption" color="text.secondary">
                       {format(event.start, "dd/MM/yyyy HH:mm", { locale: es })}
                     </Typography>
-                  </ListItem>
-                  {index < allEvents.length - 1 && <Divider />}
-                </div>
-              ))}
-          </List>
+                  </Box>
+                ))}
+            </List>
+          )}
         </Box>
       </Box>
     </Box>
