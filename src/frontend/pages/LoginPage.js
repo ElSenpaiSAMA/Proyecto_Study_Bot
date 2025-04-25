@@ -178,6 +178,7 @@ const LoginPage = () => {
             variant="outlined"
             startIcon={<GoogleIcon />}
             sx={{ mt: 2, backgroundColor: "white" }}
+            onClick={() => window.location.href = "http://localhost:5000/calendar/login"}
           >
             Iniciar Sesión con Google
           </Button>

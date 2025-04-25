@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { 
-  Box, Typography, List, Button, useTheme, Chip,
+  Box, Typography, List, Divider, Button, useTheme, Chip,
   TextField, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
   Skeleton, keyframes
 } from "@mui/material";
@@ -13,7 +13,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import GoogleIcon from "@mui/icons-material/Google";
 import AddIcon from "@mui/icons-material/Add";
 import { AuthContext } from "../context/AuthContext";
-import CustomToolbar from "../components/CustomToolBar";
 
 const locales = { es };
 const localizer = dateFnsLocalizer({
@@ -29,8 +28,6 @@ const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
-
-
 
 const SchedulePlanner = () => {
   const { userId } = useContext(AuthContext);
@@ -71,7 +68,6 @@ const SchedulePlanner = () => {
     }
   };
 
-
   useEffect(() => {
     cargarEventos();
   }, [userId]);
@@ -91,12 +87,36 @@ const SchedulePlanner = () => {
           }));
           setGoogleEvents(formattedEvents);
           setLoggedIn(true);
+          localStorage.setItem("isGoogleLogged", "true");
         })
         .catch((error) => {
           console.error("Erro ao trocar o código:", error.response?.data || error.message);
         });
     }
   }, [params, loggedIn, codeUsed]);
+  
+  // 👉 Novo useEffect para carregar eventos automaticamente se já logado
+  useEffect(() => {
+    const isGoogleLogged = localStorage.getItem("isGoogleLogged");
+    if (isGoogleLogged && !loggedIn && !codeUsed) {
+      axios.get("http://localhost:5000/calendar/get-events")
+        .then((res) => {
+          const formattedEvents = res.data.map((event) => ({
+            title: event.summary || "Sin título",
+            start: parseISO(event.start),
+            end: parseISO(event.end || event.start),
+            allDay: event.allDay,
+            isGoogleEvent: true
+          }));
+          setGoogleEvents(formattedEvents);
+          setLoggedIn(true);
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar eventos:", error.response?.data || error.message);
+          localStorage.removeItem("isGoogleLogged"); // Se der erro, remove
+        });
+    }
+  }, [loggedIn, codeUsed]);
 
   const allEvents = [...googleEvents, ...studyEvents];
 
@@ -301,6 +321,13 @@ const SchedulePlanner = () => {
               events={allEvents}
               startAccessor="start"
               endAccessor="end"
+              style={{ 
+                height: "70vh",
+                borderRadius: '16px',
+                boxShadow: theme.shadows[3],
+                padding: '16px',
+                backgroundColor: theme.palette.background.paper
+              }}
               culture="es"
               date={currentDate}
               view={currentView}
@@ -328,42 +355,6 @@ const SchedulePlanner = () => {
                   boxShadow: theme.shadows[2]
                 }
               })}
-              components={{
-                toolbar: CustomToolbar
-              }}
-              dayPropGetter={(date) => ({
-                style: {
-                  backgroundColor: date.getDate() === new Date().getDate() && 
-                                  date.getMonth() === new Date().getMonth() && 
-                                  date.getFullYear() === new Date().getFullYear()
-                    ? theme.palette.primary.light
-                    : 'transparent',
-                  borderRadius: '8px',
-                  margin: '2px'
-                }
-              })}
-              style={{ 
-                height: "70vh",
-                borderRadius: '16px',
-                boxShadow: theme.shadows[3],
-                backgroundColor: theme.palette.background.paper,
-                '& .rbc-header': {
-                  backgroundColor: theme.palette.primary.main,
-                  color: 'white',
-                  padding: '10px',
-                  border: 'none',
-                  textTransform: 'uppercase'
-                },
-                '& .rbc-day-bg + .rbc-day-bg': {
-                  borderLeft: `1px solid ${theme.palette.divider}`
-                },
-                '& .rbc-month-view': {
-                  border: 'none'
-                },
-                '& .rbc-header': {
-                  borderBottom: 'none'
-                }
-              }}
             />
           )}
         </Box>
