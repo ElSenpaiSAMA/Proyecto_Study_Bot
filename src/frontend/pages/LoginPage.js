@@ -3,8 +3,10 @@ import { Box, TextField, Button, Typography, IconButton, Snackbar, Alert } from 
 import GoogleIcon from "@mui/icons-material/Google";
 import LanguageIcon from "@mui/icons-material/Language";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext"; 
 
-const App = () => {
+const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,6 +15,7 @@ const App = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleRegister = async () => {
     // vaclidaciones básicas
@@ -80,6 +83,8 @@ const App = () => {
 
       console.log("Login con éxito:", data);
       setError("");
+      localStorage.setItem("user_id", data.userId);
+      login(data.userId); // isso vai atualizar o estado + salvar no localStorage
       navigate("/tareas");
     } catch (err) {
       console.error("Error al hacer login:", err.message);       
@@ -173,6 +178,7 @@ const App = () => {
             variant="outlined"
             startIcon={<GoogleIcon />}
             sx={{ mt: 2, backgroundColor: "white" }}
+            onClick={() => window.location.href = "http://localhost:5000/calendar/login"}
           >
             Iniciar Sesión con Google
           </Button>
@@ -215,4 +221,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default LoginPage;
