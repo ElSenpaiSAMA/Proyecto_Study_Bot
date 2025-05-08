@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { v4 as uuidv4 } from 'uuid';
 import '../styles/ToDoList.css';
 
 const ToDoList = () => {
@@ -28,28 +29,20 @@ const ToDoList = () => {
   ]);
 
   const [newBoardTitle, setNewBoardTitle] = useState('');
-  const [newTaskText, setNewTaskText] = useState('');
   const [newListTitle, setNewListTitle] = useState('');
+  const [taskInputs, setTaskInputs] = useState({});
 
   const onDragEnd = (result) => {
     const { source, destination, draggableId } = result;
-    
-    // Si no hay destino o es el mismo lugar, no hacer nada
     if (!destination || 
-       (source.droppableId === destination.droppableId && 
-        source.index === destination.index)) {
-      return;
-    }
+        (source.droppableId === destination.droppableId &&
+         source.index === destination.index)) return;
 
-    // Copia profunda de los tableros
     const updatedBoards = JSON.parse(JSON.stringify(boards));
-
-    // Encontrar el tablero que contiene ambas listas
-    const boardIndex = updatedBoards.findIndex(board => 
-      board.lists.some(list => list.id === source.droppableId) && 
+    const boardIndex = updatedBoards.findIndex(board =>
+      board.lists.some(list => list.id === source.droppableId) &&
       board.lists.some(list => list.id === destination.droppableId)
     );
-
     if (boardIndex === -1) return;
 
     const board = updatedBoards[boardIndex];
@@ -57,16 +50,19 @@ const ToDoList = () => {
     const destList = board.lists.find(list => list.id === destination.droppableId);
     const task = sourceList.tasks.find(t => t.id === draggableId);
 
-    // Mover la tarea
     sourceList.tasks.splice(source.index, 1);
     destList.tasks.splice(destination.index, 0, task);
-
     setBoards(updatedBoards);
   };
 
+  const handleTaskInputChange = (listId, value) => {
+    setTaskInputs(prev => ({ ...prev, [listId]: value }));
+  };
+
   const addTask = (listId, boardId) => {
-    if (!newTaskText) return;
-    
+    const text = taskInputs[listId];
+    if (!text) return;
+
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedLists = board.lists.map(list => {
@@ -76,8 +72,8 @@ const ToDoList = () => {
               tasks: [
                 ...list.tasks,
                 {
-                  id: `task-${Date.now()}`,
-                  content: newTaskText
+                  id: `task-${uuidv4()}`,
+                  content: text
                 }
               ]
             };
@@ -90,12 +86,12 @@ const ToDoList = () => {
     });
 
     setBoards(updatedBoards);
-    setNewTaskText('');
+    setTaskInputs(prev => ({ ...prev, [listId]: '' }));
   };
 
   const addList = (boardId) => {
     if (!newListTitle) return;
-    
+
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         return {
@@ -103,7 +99,7 @@ const ToDoList = () => {
           lists: [
             ...board.lists,
             {
-              id: `list-${Date.now()}`,
+              id: `list-${uuidv4()}`,
               title: newListTitle,
               tasks: []
             }
@@ -119,15 +115,15 @@ const ToDoList = () => {
 
   const addBoard = () => {
     if (!newBoardTitle) return;
-    
+
     setBoards([
       ...boards,
       {
-        id: `board-${Date.now()}`,
+        id: `board-${uuidv4()}`,
         title: newBoardTitle,
         lists: [
           {
-            id: `list-${Date.now()}-1`,
+            id: `list-${uuidv4()}`,
             title: 'Por Hacer',
             tasks: []
           }
@@ -157,6 +153,24 @@ const ToDoList = () => {
     setBoards(updatedBoards);
   };
 
+  const deleteBoard = (boardId) => {
+    const updatedBoards = boards.filter(board => board.id !== boardId);
+    setBoards(updatedBoards);
+  };
+
+  const deleteList = (listId, boardId) => {
+    const updatedBoards = boards.map(board => {
+      if (board.id === boardId) {
+        return {
+          ...board,
+          lists: board.lists.filter(list => list.id !== listId)
+        };
+      }
+      return board;
+    });
+    setBoards(updatedBoards);
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
@@ -178,6 +192,7 @@ const ToDoList = () => {
             <div key={board.id} className="board">
               <div className="board-header">
                 <h2>{board.title}</h2>
+                <button className="delete-board-btn" onClick={() => deleteBoard(board.id)}>Eliminar Tablero</button>
                 <div className="add-list-container">
                   <input
                     type="text"
@@ -201,6 +216,7 @@ const ToDoList = () => {
                         <div className="list-header">
                           <h3>{list.title}</h3>
                           <span>{list.tasks.length}</span>
+                          <button className="delete-list-btn" onClick={() => deleteList(list.id, board.id)}>×</button>
                         </div>
 
                         <div className="tasks-container">
@@ -235,8 +251,8 @@ const ToDoList = () => {
                           <input
                             type="text"
                             placeholder="Nueva tarea"
-                            value={newTaskText}
-                            onChange={(e) => setNewTaskText(e.target.value)}
+                            value={taskInputs[list.id] || ''}
+                            onChange={(e) => handleTaskInputChange(list.id, e.target.value)}
                           />
                           <div className="task-actions">
                             <button onClick={() => addTask(list.id, board.id)}>Añadir</button>

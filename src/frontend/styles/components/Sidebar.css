@@ -87,7 +87,7 @@
 .menu-button {
   border-radius: 12px !important;
   justify-content: center !important;
-  background-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: rgb(18, 125, 161) !important;
   color: white !important;
   padding: 10px 16px !important;
   margin-bottom: 8px !important;
@@ -97,7 +97,7 @@
 }
 
 .menu-button:hover {
-  background-color: rgba(255, 255, 255, 0.25) !important;
+  background-color: rgb(7, 45, 57) !important;
   transform: translateX(5px) !important;
 }
 
@@ -108,7 +108,7 @@
 .drawer-footer {
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgb(119, 119, 119);
   text-align: center;
 }
 
