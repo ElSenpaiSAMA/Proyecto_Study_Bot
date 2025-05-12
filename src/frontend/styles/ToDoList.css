@@ -5,9 +5,9 @@
   --board-bg: #ffffff;
   --list-bg: #eef3fb;
   --task-bg: #dfe8f5;
-  --primary-color: #3b82f6;
-  --primary-dark: #2563eb;
-  --text-color: #1f2937;
+  --primary-color: #1cb98a;
+  --primary-dark: #1b645c;
+  --text-color: #12413a;
   --border-color: #d1d5db;
 }
 
@@ -134,7 +134,7 @@ button:hover {
 }
 
 .delete-task-btn:hover {
-  color: #ef4444;
+  color: #ff0000;
 }
 
 .add-board-container,
