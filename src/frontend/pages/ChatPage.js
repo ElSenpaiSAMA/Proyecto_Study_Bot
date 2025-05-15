@@ -46,7 +46,7 @@ const ChatPage = () => {
       updateChatMessages({ sender: "bot", text: data.response });
     } catch (error) {
       console.error("Error al obtener respuesta de la IA", error);
-      updateChatMessages({ sender: "bot", text: "Hijo de Puta , intenta de nuevo hay error" });
+      updateChatMessages({ sender: "bot", text: " Error , intenta de nuevo hay error" });
     } finally {
       setIsTyping(false);
     }
