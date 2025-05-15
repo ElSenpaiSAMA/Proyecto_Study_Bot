@@ -4,6 +4,29 @@ import { v4 as uuidv4 } from 'uuid';
 import { FiPlus, FiX, FiTrash2, FiEdit2, FiMoreVertical } from 'react-icons/fi';
 import '../styles/ToDoList.css';
 
+// Función auxiliar para reordenar la lista
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  return result;
+};
+
+// Función para mover tareas entre listas
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+  destClone.splice(droppableDestination.index, 0, removed);
+
+  const result = {};
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
+
+  return result;
+};
+
 const ToDoList = () => {
   const [boards, setBoards] = useState([
     {
@@ -47,49 +70,80 @@ const ToDoList = () => {
   ]);
 
   const onDragEnd = (result) => {
-    const { source, destination, draggableId } = result;
-    if (!destination) return;
+    const { source, destination } = result;
 
-    // Reordering within the same list
-    if (source.droppableId === destination.droppableId) {
-      if (source.index === destination.index) return;
-
-      const updatedBoards = JSON.parse(JSON.stringify(boards));
-      const boardIndex = updatedBoards.findIndex(board =>
-        board.lists.some(list => list.id === source.droppableId)
-      );
-      if (boardIndex === -1) return;
-
-      const board = updatedBoards[boardIndex];
-      const list = board.lists.find(list => list.id === source.droppableId);
-      const [removed] = list.tasks.splice(source.index, 1);
-      list.tasks.splice(destination.index, 0, removed);
-      setBoards(updatedBoards);
+    // Si no hay destino o es la misma posición
+    if (!destination) {
       return;
     }
 
-    // Moving between lists
-    const updatedBoards = JSON.parse(JSON.stringify(boards));
-    const sourceBoardIndex = updatedBoards.findIndex(board =>
-      board.lists.some(list => list.id === source.droppableId)
-    );
-    const destBoardIndex = updatedBoards.findIndex(board =>
+    // Si es el mismo lugar
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
+
+    // Encontrar el tablero que contiene ambas listas
+    const boardIndex = boards.findIndex(board =>
+      board.lists.some(list => list.id === source.droppableId) &&
       board.lists.some(list => list.id === destination.droppableId)
     );
 
-    if (sourceBoardIndex === -1 || destBoardIndex === -1) return;
+    if (boardIndex === -1) return;
 
-    const sourceBoard = updatedBoards[sourceBoardIndex];
-    const destBoard = updatedBoards[destBoardIndex];
-    const sourceList = sourceBoard.lists.find(list => list.id === source.droppableId);
-    const destList = destBoard.lists.find(list => list.id === destination.droppableId);
-    const task = sourceList.tasks.find(t => t.id === draggableId);
+    const board = boards[boardIndex];
+    const sourceList = board.lists.find(list => list.id === source.droppableId);
+    const destinationList = board.lists.find(list => list.id === destination.droppableId);
 
-    sourceList.tasks.splice(source.index, 1);
-    destList.tasks.splice(destination.index, 0, task);
-    setBoards(updatedBoards);
+    // Mismo listado - reordenar
+    if (source.droppableId === destination.droppableId) {
+      const reorderedTasks = reorder(
+        sourceList.tasks,
+        source.index,
+        destination.index
+      );
+
+      const updatedBoards = [...boards];
+      updatedBoards[boardIndex] = {
+        ...board,
+        lists: board.lists.map(list => 
+          list.id === source.droppableId 
+            ? { ...list, tasks: reorderedTasks } 
+            : list
+        )
+      };
+
+      setBoards(updatedBoards);
+    } else {
+      // Diferentes listados - mover
+      const movedTasks = move(
+        sourceList.tasks,
+        destinationList.tasks,
+        source,
+        destination
+      );
+
+      const updatedBoards = [...boards];
+      updatedBoards[boardIndex] = {
+        ...board,
+        lists: board.lists.map(list => {
+          if (list.id === source.droppableId) {
+            return { ...list, tasks: movedTasks[source.droppableId] };
+          }
+          if (list.id === destination.droppableId) {
+            return { ...list, tasks: movedTasks[destination.droppableId] };
+          }
+          return list;
+        })
+      };
+
+      setBoards(updatedBoards);
+    }
   };
 
+  // ... (resto de las funciones permanecen iguales)
   const handleTaskInputChange = (listId, value) => {
     setTaskInputs(prev => ({ ...prev, [listId]: value }));
   };
@@ -293,7 +347,7 @@ const ToDoList = () => {
         <div className="header">
           <h1>
             <span className="logo-icon">📋</span>
-            Tableros Kanban
+            Mis Tableros
           </h1>
           <div className="add-board-container">
             <input
@@ -355,11 +409,11 @@ const ToDoList = () => {
               <div className="lists-container">
                 {board.lists.map((list) => (
                   <Droppable key={list.id} droppableId={list.id}>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="list"
+                        className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                       >
                         <div className="list-header">
                           {editingList === list.id ? (
