@@ -41,7 +41,7 @@ const HomePage = ({ events }) => {
 
   // Tareas de ejemplo (deberían venir de props)
   const sampleTasks = [
-    { id: 1, title: "TP Matemáticas", dueDate: "23 Nov", color: "#ff5252" },
+    { id: 1, title: "Examen Filosofia", dueDate: "23 Nov", color: "#ff5252" },
     { id: 2, title: "Leer capítulo 4", dueDate: "25 Nov", color: "#4fc3f7" },
     { id: 3, title: "Preparar presentación", dueDate: "28 Nov", color: "#66bb6a" }
   ];
