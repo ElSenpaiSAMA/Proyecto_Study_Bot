@@ -180,7 +180,7 @@ const ConfigPage = () => {
                   value={tempConfig.colorLateralFooter}
                   onChange={(e) => updateTempConfig("colorLateralFooter", e.target.value)}
                 />
-                <Typography>Color Lateral Footer</Typography>
+                <Typography>Color Lateral </Typography>
               </Box>
               <Box display="flex" alignItems="center" gap={1} mt={1}>
                 <input
