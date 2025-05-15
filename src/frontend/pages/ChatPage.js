@@ -195,7 +195,7 @@ const ChatPage = () => {
             borderRadius: "12px",
           }}
         >
-          Nuevo Chat
+          Nueva Conversacion
         </Button>
       </Box>
     </Box>
