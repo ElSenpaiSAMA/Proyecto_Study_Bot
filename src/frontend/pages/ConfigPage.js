@@ -146,7 +146,7 @@ const ConfigPage = () => {
                   value={tempConfig.subirImagenColor}
                   onChange={(e) => updateTempConfig("subirImagenColor", e.target.value)}
                 />
-                <Typography>Subir Imagen</Typography>
+                <Typography>Cargar Imagen</Typography>
               </Box>
               <Box display="flex" alignItems="center" gap={1} mt={1}>
                 <input
