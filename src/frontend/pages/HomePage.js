@@ -13,16 +13,13 @@ import {
 } from "@mui/material";
 import { 
   Event, 
-  Assignment, 
-  School, 
   CalendarToday,
   CheckCircle,
-  Warning,
   AccessTime as AccessTimeIcon,
   Notifications,
   MoreVert,
   TrendingUp,
-  EmojiEvents
+  School
 } from "@mui/icons-material";
 import { keyframes } from "@emotion/react";
 
@@ -35,13 +32,9 @@ const pulseAnimation = keyframes`
 const HomePage = ({ events }) => {
   const theme = useTheme();
 
-  // Datos de ejemplo para progreso académico
+  // Datos de ejemplo para progreso académico (sin inasistencias, racha ni ranking ni días restantes)
   const academicData = {
-    progress: 78,
-    absences: 2,
-    daysRemaining: 87,
-    streak: 14,
-    rank: "Top 15%"
+    progress: 78
   };
 
   // Obtener próximos eventos
@@ -275,359 +268,74 @@ const HomePage = ({ events }) => {
             }}
           >
             <Box component="span" sx={{ 
-              width: 8, 
-              height: 8, 
+              width: 12, 
+              height: 12, 
               bgcolor: theme.palette.success.main, 
-              borderRadius: '50%',
-              display: 'inline-block'
+              borderRadius: '50%' 
             }} />
-            Tienes {sampleTasks.filter(t => !t.completed).length} tareas pendientes hoy
+            Última actualización: Hoy
           </Typography>
         </Box>
-        
-        <Box display="flex" gap={1}>
-          <IconButton sx={{ 
-            bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-            '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300]
-            }
-          }}>
+
+        <IconButton aria-label="notificaciones" size="large" sx={{ color: theme.palette.text.secondary }}>
+          <Badge color="error" badgeContent={3}>
             <Notifications />
-          </IconButton>
-          <IconButton sx={{ 
-            bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-            '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300]
-            }
-          }}>
-            <MoreVert />
-          </IconButton>
-        </Box>
+          </Badge>
+        </IconButton>
       </Box>
 
       <Grid container spacing={3}>
-        {/* Tarjeta de Progreso Académico */}
-        <Grid item xs={12} md={4}>
-          <StyledCard elevation={0}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Box display="flex" alignItems="center">
-                <School sx={{ 
-                  fontSize: 32, 
-                  mr: 1.5, 
-                  color: theme.palette.secondary.main,
-                  p: 0.5,
-                  bgcolor: theme.palette.secondary.light + '20',
-                  borderRadius: '10px'
-                }} />
-                <Typography variant="h6" fontWeight="700">Mi Progreso</Typography>
-              </Box>
-              <TrendingUp sx={{ 
-                color: theme.palette.success.main,
-                fontSize: 28
-              }} />
-            </Box>
-            
-            <Box textAlign="center" sx={{ mb: 3 }}>
+        {/* Progreso académico */}
+        <Grid item xs={12} md={6} lg={4}>
+          <StyledCard>
+            <Box display="flex" alignItems="center" gap={3} flexDirection={{ xs: "column", sm: "row" }}>
               <ProgressCircle progress={academicData.progress} />
+              <Box>
+                <Typography variant="h6" fontWeight="700" gutterBottom>
+                  Progreso Académico
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Has completado {academicData.progress}% de tu curso.
+                </Typography>
+              </Box>
             </Box>
-            
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <Box 
-                  sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px',
-                    bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                    textAlign: 'center'
-                  }}
-                >
-                  <Warning sx={{ 
-                    color: theme.palette.error.main,
-                    fontSize: 28,
-                    mb: 0.5
-                  }} />
-                  <Typography variant="body2" fontWeight="600">
-                    Inasistencias
-                  </Typography>
-                  <Typography variant="h6" fontWeight="800">
-                    {academicData.absences}
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box 
-                  sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px',
-                    bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                    textAlign: 'center'
-                  }}
-                >
-                  <CalendarToday sx={{ 
-                    color: theme.palette.info.main,
-                    fontSize: 28,
-                    mb: 0.5
-                  }} />
-                  <Typography variant="body2" fontWeight="600">
-                    Días restantes
-                  </Typography>
-                  <Typography variant="h6" fontWeight="800">
-                    {academicData.daysRemaining}
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box 
-                  sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px',
-                    bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                    textAlign: 'center'
-                  }}
-                >
-                  <Box sx={{ 
-                    color: theme.palette.warning.main,
-                    fontSize: 28,
-                    mb: 0.5
-                  }}>🔥</Box>
-                  <Typography variant="body2" fontWeight="600">
-                    Racha
-                  </Typography>
-                  <Typography variant="h6" fontWeight="800">
-                    {academicData.streak}d
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box 
-                  sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px',
-                    bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                    textAlign: 'center'
-                  }}
-                >
-                  <EmojiEvents sx={{ 
-                    color: theme.palette.primary.main,
-                    fontSize: 28,
-                    mb: 0.5
-                  }} />
-                  <Typography variant="body2" fontWeight="600">
-                    Ranking
-                  </Typography>
-                  <Typography variant="h6" fontWeight="800">
-                    {academicData.rank}
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
           </StyledCard>
         </Grid>
 
-        {/* Próximos Eventos */}
-        <Grid item xs={12} md={4}>
-          <StyledCard elevation={0}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Box display="flex" alignItems="center">
-                <Event sx={{ 
-                  fontSize: 32, 
-                  mr: 1.5, 
-                  color: theme.palette.warning.main,
-                  p: 0.5,
-                  bgcolor: theme.palette.warning.light + '20',
-                  borderRadius: '10px'
-                }} />
-                <Typography variant="h6" fontWeight="700">Próximos Eventos</Typography>
-              </Box>
-              <Typography variant="caption" sx={{ 
-                bgcolor: theme.palette.warning.light + '30',
-                color: theme.palette.warning.dark,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: '12px',
-                fontWeight: '600'
-              }}>
-                {getUpcomingEvents().length} nuevos
+        {/* Próximos eventos */}
+        <Grid item xs={12} md={6} lg={4}>
+          <StyledCard>
+            <Typography variant="h6" fontWeight="700" mb={2}>
+              Próximos Eventos
+            </Typography>
+            {getUpcomingEvents().length === 0 && (
+              <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>
+                No hay eventos próximos.
               </Typography>
-            </Box>
-            
-            {getUpcomingEvents().length > 0 ? (
-              getUpcomingEvents().map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))
-            ) : (
-              <Box sx={{ 
-                p: 3, 
-                textAlign: 'center',
-                bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] + '80' : theme.palette.grey[100],
-                borderRadius: '14px',
-                border: `1px dashed ${theme.palette.divider}`
-              }}>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                  🎉
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  No hay eventos próximos. ¡Disfruta tu día!
-                </Typography>
-              </Box>
             )}
+            {getUpcomingEvents().map(event => (
+              <EventCard key={event.id} event={event} />
+            ))}
           </StyledCard>
         </Grid>
 
-        {/* Tareas Pendientes */}
-        <Grid item xs={12} md={4}>
-          <StyledCard elevation={0}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Box display="flex" alignItems="center">
-                <Assignment sx={{ 
-                  fontSize: 32, 
-                  mr: 1.5, 
-                  color: theme.palette.error.main,
-                  p: 0.5,
-                  bgcolor: theme.palette.error.light + '20',
-                  borderRadius: '10px'
-                }} />
-                <Typography variant="h6" fontWeight="700">Tareas Pendientes</Typography>
-              </Box>
-              <Typography variant="caption" sx={{ 
-                bgcolor: theme.palette.error.light + '30',
-                color: theme.palette.error.dark,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: '12px',
-                fontWeight: '600'
-              }}>
-                {sampleTasks.filter(t => !t.completed).length} por hacer
+        {/* Tareas pendientes */}
+        <Grid item xs={12} md={12} lg={4}>
+          <StyledCard>
+            <Typography variant="h6" fontWeight="700" mb={2}>
+              Tareas Pendientes
+            </Typography>
+            {sampleTasks.length === 0 && (
+              <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>
+                No tienes tareas pendientes.
               </Typography>
-            </Box>
-            
-            {sampleTasks.map((task) => (
+            )}
+            {sampleTasks.map(task => (
               <TaskItem key={task.id} task={task} />
             ))}
-            
-            <Box 
-              sx={{ 
-                mt: 2, 
-                p: 1.5, 
-                textAlign: 'center',
-                bgcolor: theme.palette.mode === 'dark' ? theme.palette.primary.dark + '30' : theme.palette.primary.light + '20',
-                borderRadius: '12px',
-                border: `1px solid ${theme.palette.primary.light}`,
-                cursor: 'pointer',
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? theme.palette.primary.dark + '50' : theme.palette.primary.light + '30'
-                }
-              }}
-            >
-              <Typography variant="body2" fontWeight="600" color="primary.main">
-                + Añadir nueva tarea
-              </Typography>
-            </Box>
           </StyledCard>
         </Grid>
       </Grid>
-
-      {/* Gráfico de Progreso */}
-      <StyledCard elevation={0} sx={{ mt: 3, p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h6" fontWeight="700">
-            Rendimiento Académico
-          </Typography>
-          <Box display="flex" gap={1}>
-            <Typography variant="caption" sx={{ 
-              bgcolor: theme.palette.primary.light + '30',
-              color: theme.palette.primary.dark,
-              px: 1.5,
-              py: 0.5,
-              borderRadius: '12px',
-              fontWeight: '600'
-            }}>
-              Últimos 30 días
-            </Typography>
-          </Box>
-        </Box>
-        <Box 
-          sx={{
-            height: 250,
-            background: `linear-gradient(135deg, ${theme.palette.primary.light}20 0%, ${theme.palette.secondary.light}20 100%)`,
-            borderRadius: "16px",
-            position: "relative",
-            overflow: 'hidden',
-            border: `1px solid ${theme.palette.divider}`
-          }}
-        >
-          {/* Placeholder para gráfico */}
-          <Box 
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "75%",
-              bgcolor: "rgba(255,255,255,0.5)",
-              borderTopLeftRadius: "16px",
-              borderTopRightRadius: "16px",
-              display: 'flex',
-              justifyContent: 'space-around',
-              alignItems: 'flex-end',
-              px: 3
-            }}
-          >
-            {[30, 60, 45, 80, 65, 90, 70].map((height, index) => (
-              <Box 
-                key={index}
-                sx={{
-                  width: 30,
-                  height: `${height}%`,
-                  bgcolor: theme.palette.primary.main,
-                  borderRadius: '6px 6px 0 0',
-                  position: 'relative',
-                  '&:after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '20%',
-                    bgcolor: theme.palette.primary.light,
-                    borderRadius: '6px 6px 0 0'
-                  }
-                }}
-              />
-            ))}
-          </Box>
-          
-          {/* Eje X */}
-          <Box 
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "25%",
-              display: 'flex',
-              justifyContent: 'space-around',
-              alignItems: 'flex-start',
-              px: 3,
-              pt: 1
-            }}
-          >
-            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => (
-              <Typography 
-                key={index} 
-                variant="caption" 
-                sx={{ 
-                  width: 30, 
-                  textAlign: 'center',
-                  color: theme.palette.text.secondary
-                }}
-              >
-                {day}
-              </Typography>
-            ))}
-          </Box>
-        </Box>
-      </StyledCard>
     </Box>
   );
 };
