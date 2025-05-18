@@ -40,25 +40,25 @@ async def login(data: dict, db: Session = Depends(get_db)):
         password = data.get("password")
 
         if not email or not password:
-            raise HTTPException(status_code=400, detail="Email e senha obrigatórios")
+            raise HTTPException(status_code=400, detail="Email y contraseña son obligatorios")
 
         # Verifique se a sessão do banco de dados está funcionando
         test_query = db.execute(text("SELECT 1"))
         if not test_query:
-            raise HTTPException(status_code=500, detail="Erro na conexão com o banco de dados")
+            raise HTTPException(status_code=500, detail="Error en la conexión con la base de datos")
 
         user = db.query(User).filter(User.email == email).first()
         if not user:
-            raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
+            raise HTTPException(status_code=400, detail="Email y/o contraseña incorrectos")
 
         if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
-            raise HTTPException(status_code=400, detail="Email e/ou senha incorretos")
+            raise HTTPException(status_code=400, detail="Email y/o contraseña incorrectos")
 
         return {
-            "message": "Login feito com sucesso",
+            "message": "Login con exito",
             "userId": user.id,
             "email": user.email
         }
     except Exception as e:
-        print("Erro interno no login:", e)
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        print("Error interno en el login:", e)
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")

@@ -1,65 +1,16 @@
-import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
-import { FiPlus, FiX, FiTrash2, FiEdit2, FiMoreVertical } from 'react-icons/fi';
-import '../styles/ToDoList.css';
-
-// Función auxiliar para reordenar la lista
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  return result;
-};
-
-// Función para mover tareas entre listas
-const move = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  const result = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
+import React, { useState, useEffect, useContext } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import axios from "axios";
+import { FiPlus, FiX, FiTrash2 } from "react-icons/fi";
+import "../styles/ToDoList.css";
+import { AuthContext } from "../context/AuthContext";
 
 const ToDoList = () => {
-  const [boards, setBoards] = useState([
-    {
-      id: 'board-1',
-      title: 'Proyecto Principal',
-      color: '#4f46e5',
-      lists: [
-        {
-          id: 'list-1',
-          title: 'Por Hacer',
-          tasks: [
-            { id: 'task-1', content: 'Diseñar interfaz', description: 'Crear wireframes para la aplicación' },
-            { id: 'task-2', content: 'Configurar API', description: 'Establecer endpoints principales' },
-          ],
-        },
-        {
-          id: 'list-2',
-          title: 'En Progreso',
-          tasks: [
-            { id: 'task-3', content: 'Desarrollar componentes', description: 'Implementar componentes reutilizables' },
-          ],
-        },
-        {
-          id: 'list-3',
-          title: 'Completado',
-          tasks: [],
-        },
-      ],
-    },
-  ]);
+  const { userId } = useContext(AuthContext);
 
+  const [boards, setBoards] = useState([]);
   const [newBoardTitle, setNewBoardTitle] = useState('');
-  const [newListTitle, setNewListTitle] = useState('');
+  const [newListTitles, setNewListTitles] = useState({});
   const [taskInputs, setTaskInputs] = useState({});
   const [taskDescriptions, setTaskDescriptions] = useState({});
   const [editingBoard, setEditingBoard] = useState(null);
@@ -71,21 +22,8 @@ const ToDoList = () => {
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) return;
 
-    // Si no hay destino o es la misma posición
-    if (!destination) {
-      return;
-    }
-
-    // Si es el mismo lugar
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
-
-    // Encontrar el tablero que contiene ambas listas
     const boardIndex = boards.findIndex(board =>
       board.lists.some(list => list.id === source.droppableId) &&
       board.lists.some(list => list.id === destination.droppableId)
@@ -97,248 +35,238 @@ const ToDoList = () => {
     const sourceList = board.lists.find(list => list.id === source.droppableId);
     const destinationList = board.lists.find(list => list.id === destination.droppableId);
 
-    // Mismo listado - reordenar
-    if (source.droppableId === destination.droppableId) {
-      const reorderedTasks = reorder(
-        sourceList.tasks,
-        source.index,
-        destination.index
-      );
+    if (!sourceList || !destinationList) return;
 
-      const updatedBoards = [...boards];
-      updatedBoards[boardIndex] = {
-        ...board,
-        lists: board.lists.map(list => 
-          list.id === source.droppableId 
-            ? { ...list, tasks: reorderedTasks } 
-            : list
-        )
-      };
+    const sourceTasks = [...sourceList.tasks];
+    const [movedTask] = sourceTasks.splice(source.index, 1);
 
-      setBoards(updatedBoards);
-    } else {
-      // Diferentes listados - mover
-      const movedTasks = move(
-        sourceList.tasks,
-        destinationList.tasks,
-        source,
-        destination
-      );
+    const destinationTasks = [...destinationList.tasks];
+    destinationTasks.splice(destination.index, 0, movedTask);
 
-      const updatedBoards = [...boards];
-      updatedBoards[boardIndex] = {
-        ...board,
-        lists: board.lists.map(list => {
-          if (list.id === source.droppableId) {
-            return { ...list, tasks: movedTasks[source.droppableId] };
-          }
-          if (list.id === destination.droppableId) {
-            return { ...list, tasks: movedTasks[destination.droppableId] };
-          }
-          return list;
-        })
-      };
+    const updatedLists = board.lists.map(list => {
+      if (list.id === source.droppableId) return { ...list, tasks: sourceTasks };
+      if (list.id === destination.droppableId) return { ...list, tasks: destinationTasks };
+      return list;
+    });
 
-      setBoards(updatedBoards);
+    const updatedBoards = [...boards];
+    updatedBoards[boardIndex] = { ...board, lists: updatedLists };
+    setBoards(updatedBoards);
+  };
+
+  useEffect(() => {
+    if (!userId) return;
+    axios.get(`http://localhost:5000/boards/${userId}`)
+      .then(async (res) => {
+        const boardsWithLists = await Promise.all(res.data.map(async (board) => {
+          const listsRes = await axios.get(`http://localhost:5000/boards/${board.id}/lists/${userId}`);
+          const listsWithTasks = await Promise.all(listsRes.data.map(async (list) => {
+            const tasksRes = await axios.get(`http://localhost:5000/lists/${list.id}/tasks/${userId}`);
+            return { ...list, tasks: tasksRes.data };
+          }));
+          return { ...board, lists: listsWithTasks };
+        }));
+        setBoards(boardsWithLists);
+      })
+      .catch(err => console.error("Erro ao carregar boards:", err));
+  }, [userId]);
+
+  const addBoard = async () => {
+    if (!newBoardTitle || !userId) return;
+    const color = boardColors[Math.floor(Math.random() * boardColors.length)];
+    try {
+      const res = await axios.post(`http://localhost:5000/boards/${userId}`, {
+        title: newBoardTitle,
+        color
+      });
+      const board = res.data;
+      board.lists = [];
+      setBoards(prev => [...prev, board]);
+      setNewBoardTitle("");
+    } catch (err) {
+      console.error("Erro ao criar board:", err);
     }
   };
 
-  // ... (resto de las funciones permanecen iguales)
-  const handleTaskInputChange = (listId, value) => {
-    setTaskInputs(prev => ({ ...prev, [listId]: value }));
+  const addList = async (boardId) => {
+    const title = newListTitles[boardId];
+    if (!title || !userId) return;
+
+    try {
+      const res = await axios.post(`http://localhost:5000/boards/${boardId}/lists/${userId}`, {
+        title,
+        position: 1
+      });
+      const list = res.data;
+      list.tasks = [];
+
+      setBoards((prev) =>
+        prev.map((board) =>
+          board.id === boardId
+            ? { ...board, lists: [...board.lists, list] }
+            : board
+        )
+      );
+
+      setNewListTitles((prev) => ({ ...prev, [boardId]: "" }));
+    } catch (err) {
+      console.error("Erro ao criar lista:", err);
+    }
   };
 
-  const handleTaskDescChange = (listId, value) => {
-    setTaskDescriptions(prev => ({ ...prev, [listId]: value }));
+  const addTask = async (listId, boardId) => {
+  const content = taskInputs[listId];
+  const description = taskDescriptions[listId] || "";
+    if (!content || !userId) return;
+    try {
+      const res = await axios.post(`http://localhost:5000/lists/${listId}/tasks/${userId}`, {
+        content,
+        description,
+        position: 1
+      });
+      const task = res.data;
+
+      setBoards(prev => prev.map(board => {
+        if (board.id === boardId) {
+          return {
+            ...board,
+            lists: board.lists.map(list =>
+              list.id === listId ? { ...list, tasks: [...list.tasks, task] } : list
+            )
+          };
+        }
+        return board;
+      }));
+
+      setTaskInputs(prev => ({ ...prev, [listId]: "" }));
+      setTaskDescriptions(prev => ({ ...prev, [listId]: "" }));
+    } catch (err) {
+      console.error("Erro ao criar tarefa:", err);
+    }
   };
 
-  const addTask = (listId, boardId) => {
-    const text = taskInputs[listId];
-    if (!text) return;
-
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        const updatedLists = board.lists.map(list => {
-          if (list.id === listId) {
-            return {
-              ...list,
-              tasks: [
-                ...list.tasks,
-                {
-                  id: `task-${uuidv4()}`,
-                  content: text,
-                  description: taskDescriptions[listId] || ''
-                }
-              ]
-            };
-          }
-          return list;
-        });
-        return { ...board, lists: updatedLists };
-      }
-      return board;
-    });
-
-    setBoards(updatedBoards);
-    setTaskInputs(prev => ({ ...prev, [listId]: '' }));
-    setTaskDescriptions(prev => ({ ...prev, [listId]: '' }));
+  const deleteBoard = async (boardId) => {
+    try {
+      await axios.delete(`http://localhost:5000/boards/${boardId}/${userId}`);
+      setBoards(prev => prev.filter(board => board.id !== boardId));
+    } catch (err) {
+      console.error("Erro ao deletar board:", err);
+    }
   };
 
-  const addList = (boardId) => {
-    if (!newListTitle) return;
+  const deleteList = async (listId, boardId) => {
+    try {
+      await axios.delete(`http://localhost:5000/boards/${boardId}/lists/${listId}/${userId}`);
+      setBoards(prev => prev.map(board =>
+        board.id === boardId
+          ? { ...board, lists: board.lists.filter(list => list.id !== listId) }
+          : board
+      ));
+    } catch (err) {
+      console.error("Erro ao deletar lista:", err);
+    }
+  };
 
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        return {
-          ...board,
-          lists: [
-            ...board.lists,
-            {
-              id: `list-${uuidv4()}`,
-              title: newListTitle,
-              tasks: []
+  const deleteTask = async (taskId, listId, boardId) => {
+    try {
+      await axios.delete(`http://localhost:5000/lists/${listId}/tasks/${taskId}/${userId}`);
+      setBoards(prev => prev.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              lists: board.lists.map(list =>
+                list.id === listId
+                  ? { ...list, tasks: list.tasks.filter(task => task.id !== taskId) }
+                  : list
+              )
             }
-          ]
-        };
-      }
-      return board;
-    });
-
-    setBoards(updatedBoards);
-    setNewListTitle('');
+          : board
+      ));
+    } catch (err) {
+      console.error("Erro ao deletar tarefa:", err);
+    }
   };
 
-  const addBoard = () => {
-    if (!newBoardTitle) return;
-
-    const randomColor = boardColors[Math.floor(Math.random() * boardColors.length)];
-
-    setBoards([
-      ...boards,
-      {
-        id: `board-${uuidv4()}`,
-        title: newBoardTitle,
-        color: randomColor,
-        lists: [
-          {
-            id: `list-${uuidv4()}`,
-            title: 'Por Hacer',
-            tasks: []
-          },
-          {
-            id: `list-${uuidv4()}`,
-            title: 'En Progreso',
-            tasks: []
-          },
-          {
-            id: `list-${uuidv4()}`,
-            title: 'Completado',
-            tasks: []
-          }
-        ]
-      }
-    ]);
-    setNewBoardTitle('');
+  const updateBoardTitle = async (boardId, newTitle) => {
+    if (!newTitle || !userId) return;
+    try {
+      await axios.put(`http://localhost:5000/boards/${boardId}/${userId}`, {
+        title: newTitle,
+        color: boards.find(b => b.id === boardId)?.color || "#000"
+      });
+      setBoards(prev => prev.map(board =>
+        board.id === boardId ? { ...board, title: newTitle } : board
+      ));
+      setEditingBoard(null);
+    } catch (err) {
+      console.error("Erro ao atualizar board:", err);
+    }
   };
 
-  const deleteTask = (taskId, listId, boardId) => {
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        const updatedLists = board.lists.map(list => {
-          if (list.id === listId) {
-            return {
-              ...list,
-              tasks: list.tasks.filter(task => task.id !== taskId)
-            };
-          }
-          return list;
-        });
-        return { ...board, lists: updatedLists };
-      }
-      return board;
-    });
-
-    setBoards(updatedBoards);
+  const updateListTitle = async (listId, boardId, newTitle) => {
+    if (!newTitle || !userId) return;
+    try {
+      await axios.put(`http://localhost:5000/boards/${boardId}/lists/${listId}/${userId}`, {
+        title: newTitle,
+        position: 1
+      });
+      setBoards(prev => prev.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              lists: board.lists.map(list =>
+                list.id === listId ? { ...list, title: newTitle } : list
+              )
+            }
+          : board
+      ));
+      setEditingList(null);
+    } catch (err) {
+      console.error("Erro ao atualizar lista:", err);
+    }
   };
 
-  const deleteBoard = (boardId) => {
-    const updatedBoards = boards.filter(board => board.id !== boardId);
-    setBoards(updatedBoards);
-  };
+  const updateTaskContent = async (taskId, listId, boardId, newContent, newDescription) => {
+    const currentTask = boards
+      .find(b => b.id === boardId)
+      ?.lists.find(l => l.id === listId)
+      ?.tasks.find(t => t.id === taskId);
 
-  const deleteList = (listId, boardId) => {
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        return {
-          ...board,
-          lists: board.lists.filter(list => list.id !== listId)
-        };
-      }
-      return board;
-    });
-    setBoards(updatedBoards);
-  };
+    try {
+      await axios.put(`http://localhost:5000/lists/${listId}/tasks/${taskId}/${userId}`, {
+        content: newContent || currentTask.content,
+        description: newDescription || currentTask.description,
+        position: currentTask.position
+      });
 
-  const updateBoardTitle = (boardId, newTitle) => {
-    if (!newTitle) return;
-    
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        return { ...board, title: newTitle };
-      }
-      return board;
-    });
-    
-    setBoards(updatedBoards);
-    setEditingBoard(null);
-  };
+      setBoards(prev => prev.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              lists: board.lists.map(list =>
+                list.id === listId
+                  ? {
+                      ...list,
+                      tasks: list.tasks.map(task =>
+                        task.id === taskId
+                          ? {
+                              ...task,
+                              content: newContent || task.content,
+                              description: newDescription || task.description
+                            }
+                          : task
+                      )
+                    }
+                  : list
+              )
+            }
+          : board
+      ));
 
-  const updateListTitle = (listId, boardId, newTitle) => {
-    if (!newTitle) return;
-    
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        const updatedLists = board.lists.map(list => {
-          if (list.id === listId) {
-            return { ...list, title: newTitle };
-          }
-          return list;
-        });
-        return { ...board, lists: updatedLists };
-      }
-      return board;
-    });
-    
-    setBoards(updatedBoards);
-    setEditingList(null);
-  };
-
-  const updateTaskContent = (taskId, listId, boardId, newContent, newDescription) => {
-    const updatedBoards = boards.map(board => {
-      if (board.id === boardId) {
-        const updatedLists = board.lists.map(list => {
-          if (list.id === listId) {
-            const updatedTasks = list.tasks.map(task => {
-              if (task.id === taskId) {
-                return { 
-                  ...task, 
-                  content: newContent || task.content,
-                  description: newDescription || task.description
-                };
-              }
-              return task;
-            });
-            return { ...list, tasks: updatedTasks };
-          }
-          return list;
-        });
-        return { ...board, lists: updatedLists };
-      }
-      return board;
-    });
-    
-    setBoards(updatedBoards);
-    setEditingTask(null);
+      setEditingTask(null);
+    } catch (err) {
+      console.error("Erro ao atualizar tarefa:", err);
+    }
   };
 
   return (
@@ -397,9 +325,13 @@ const ToDoList = () => {
                 <input
                   type="text"
                   placeholder="Nombre de la nueva lista"
-                  value={newListTitle}
-                  onChange={(e) => setNewListTitle(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addList(board.id)}
+                  value={newListTitles[board.id] || ""}
+                  onChange={(e) =>
+                    setNewListTitles((prev) => ({ ...prev, [board.id]: e.target.value }))
+                  }
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && addList(board.id)
+                  }
                 />
                 <button className="add-btn" onClick={() => addList(board.id)}>
                   <FiPlus /> Añadir Lista
@@ -503,13 +435,13 @@ const ToDoList = () => {
                             type="text"
                             placeholder="Nueva tarea"
                             value={taskInputs[list.id] || ''}
-                            onChange={(e) => handleTaskInputChange(list.id, e.target.value)}
+                            onChange={(e) => setTaskInputs(prev => ({ ...prev, [list.id]: e.target.value }))}
                             onKeyPress={(e) => e.key === 'Enter' && addTask(list.id, board.id)}
                           />
                           <textarea
                             placeholder="Descripción (opcional)"
                             value={taskDescriptions[list.id] || ''}
-                            onChange={(e) => handleTaskDescChange(list.id, e.target.value)}
+                            onChange={(e) => setTaskDescriptions(prev => ({ ...prev, [list.id]: e.target.value }))}
                           />
                           <button 
                             className="add-btn"
@@ -529,6 +461,7 @@ const ToDoList = () => {
       </div>
     </DragDropContext>
   );
-};
+}
+
 
 export default ToDoList;

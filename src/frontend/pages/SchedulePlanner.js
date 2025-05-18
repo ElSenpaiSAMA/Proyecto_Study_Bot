@@ -23,7 +23,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// 🚀 Animação de entrada
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -95,7 +94,6 @@ const SchedulePlanner = () => {
     }
   }, [params, loggedIn, codeUsed]);
   
-  // 👉 Novo useEffect para carregar eventos automaticamente se já logado
   useEffect(() => {
     const isGoogleLogged = localStorage.getItem("isGoogleLogged");
     if (isGoogleLogged && !loggedIn && !codeUsed) {
@@ -113,7 +111,7 @@ const SchedulePlanner = () => {
         })
         .catch((error) => {
           console.error("Erro ao buscar eventos:", error.response?.data || error.message);
-          localStorage.removeItem("isGoogleLogged"); // Se der erro, remove
+          localStorage.removeItem("isGoogleLogged"); 
         });
     }
   }, [loggedIn, codeUsed]);
@@ -139,7 +137,7 @@ const SchedulePlanner = () => {
       user_id: userId,
     })
     .then(res => {
-      cargarEventos(); // Despues de guardar en en banco de datos, llama la función para carregar los eventos otra vez
+      cargarEventos(); 
       setOpenModal(false);
       setNewEvent({
         title: "",
@@ -158,9 +156,8 @@ const SchedulePlanner = () => {
       maxWidth: { xl: 1800 },
       margin: '0 auto',
       minHeight: '100vh',
-      animation: `${fadeIn} 0.5s ease-out` // 🚀 Animação na página toda
+      animation: `${fadeIn} 0.5s ease-out` 
     }}>
-      {/* 🚀 Cabeçalho modernizado */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -215,7 +212,6 @@ const SchedulePlanner = () => {
         </Box>
       </Box>
 
-      {/* 🚀 Modal moderno */}
       <Dialog 
         open={openModal} 
         onClose={() => setOpenModal(false)}

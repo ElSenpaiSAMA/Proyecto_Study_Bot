@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Box, Button, Avatar, Typography, Drawer, useMediaQuery } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Home, CalendarToday, Assignment, School, ShowChart, Settings, Menu as MenuIcon } from '@mui/icons-material';
 import logo from "../assets/logoo.png";
 import { useConfig } from "../context/ConfigContext";
 import "../styles/components/Sidebar.css";
+import { AuthContext } from "../context/AuthContext";
+import { Logout } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 
 const menuItems = [
   { path: "/inicio", icon: <Home />, text: "Inicio" },
@@ -29,6 +32,7 @@ function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const location = useLocation(); // Obtiene la ruta actual
+  const { logout } = useContext(AuthContext);
 
   // Obtiene el título de la página basado en la ruta actual
   const getPageTitle = () => {
@@ -127,7 +131,20 @@ function Sidebar() {
             ))}
           </Box>
 
-          <Box className="drawer-footer">
+          <Box className="drawer-footer" sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Tooltip title="Cerrar sesión" arrow>
+              <Button
+                onClick={() => {
+                  logout();
+                  window.location.href = "/";
+                }}
+                color="secondary"
+                aria-label="Cerrar sesión"
+              >
+                <Logout />
+              </Button>
+            </Tooltip>
+
             <Typography className="version-text">
               v1.0.0
             </Typography>

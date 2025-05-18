@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import LoginPage from './pages/LoginPage';
 import SchedulePlanner from './pages/SchedulePlanner';
 import ToDoList from './pages/ToDoList';
-import ProgresoAcademico from './pages/ProgresoAcademico';
+import Graphics from './pages/Graphics';
 import ExamGenerator from './pages/ExamGenerator';
 import ConfigPage from './pages/ConfigPage';
 import HomePage from './pages/HomePage';
@@ -59,7 +59,7 @@ function Layout() {
           />
           <Route path="/tareas" element={<ToDoList />} />
           <Route path="/chat" element={<ChatPage />} />
-          <Route path="/progreso" element={<ProgresoAcademico />} />
+          <Route path="/progreso" element={<Graphics />} />
           <Route path="/examenes" element={<ExamGenerator />} />
         </Routes>
 
