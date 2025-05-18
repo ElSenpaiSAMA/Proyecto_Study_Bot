@@ -87,7 +87,6 @@
 .menu-button {
   border-radius: 12px !important;
   justify-content: center !important;
-  background-color: rgb(18, 125, 161) !important;
   color: white !important;
   padding: 10px 16px !important;
   margin-bottom: 8px !important;
@@ -97,7 +96,6 @@
 }
 
 .menu-button:hover {
-  background-color: rgb(7, 45, 57) !important;
   transform: translateX(5px) !important;
 }
 

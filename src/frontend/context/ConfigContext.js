@@ -17,7 +17,9 @@ export const ConfigProvider = ({ children }) => {
     colorMensChatUs: "#83ccd7", 
     mode: "Claro",
     username: "Hugo Pérez",
-    profilePic: null, 
+    profilePic: null,
+    menuButtonColor: "#127DA1", // Added for menu button color
+    menuButtonHoverColor: "#072D39" // Added for menu button hover color
   });
 
   const updateConfig = (newConfig) => {

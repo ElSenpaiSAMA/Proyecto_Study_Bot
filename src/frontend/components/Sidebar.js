@@ -31,7 +31,7 @@ function Sidebar() {
   const { config } = useConfig();
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
-  const location = useLocation(); // Obtiene la ruta actual
+  const location = useLocation();
   const { logout } = useContext(AuthContext);
 
   // Obtiene el título de la página basado en la ruta actual
@@ -49,7 +49,7 @@ function Sidebar() {
   return (
     <>
       <Box
-        component="header"
+        Popscomponent="header"
         className="sidebar-header"
         style={{ backgroundColor: config.colorLateral }}
       >
@@ -62,7 +62,7 @@ function Sidebar() {
             <MenuIcon />
           </Button>
           <Typography className="app-title">
-            {getPageTitle()} {/* Muestra el título de la página actual */}
+            {getPageTitle()}
           </Typography>
         </Box>
 
@@ -125,6 +125,12 @@ function Sidebar() {
                 onClick={toggleDrawer(false)}
                 className="menu-button"
                 startIcon={item.icon}
+                sx={{
+                  backgroundColor: config.menuButtonColor,
+                  '&:hover': {
+                    backgroundColor: config.menuButtonHoverColor,
+                  }
+                }}
               >
                 {item.text}
               </Button>
