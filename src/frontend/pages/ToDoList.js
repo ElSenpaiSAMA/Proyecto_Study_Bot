@@ -115,8 +115,8 @@ const ToDoList = () => {
   };
 
   const addTask = async (listId, boardId) => {
-  const content = taskInputs[listId];
-  const description = taskDescriptions[listId] || "";
+    const content = taskInputs[listId];
+    const description = taskDescriptions[listId] || "";
     if (!content || !userId) return;
     try {
       const res = await axios.post(`http://localhost:5000/lists/${listId}/tasks/${userId}`, {
@@ -286,55 +286,31 @@ const ToDoList = () => {
               onKeyPress={(e) => e.key === 'Enter' && addBoard()}
             />
             <button className="add-btn" onClick={addBoard}>
-              <FiPlus /> Crear Tablero
+              <FiPlus />
             </button>
           </div>
         </div>
 
         <div className="boards-container">
           {boards.map((board) => (
-            <div 
-              key={board.id} 
+            <div
+              key={board.id}
               className="board"
-              style={{ borderTop: `5px solid ${board.color}` }}
+              style={{ borderColor: board.color }}
             >
-              <div className="board-header">
+              <div className="board-header" style={{ backgroundColor: board.color }}>
                 {editingBoard === board.id ? (
                   <input
                     type="text"
                     defaultValue={board.title}
-                    autoFocus
                     onBlur={(e) => updateBoardTitle(board.id, e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && updateBoardTitle(board.id, e.target.value)}
+                    autoFocus
                   />
                 ) : (
                   <h2 onClick={() => setEditingBoard(board.id)}>{board.title}</h2>
                 )}
-                <div className="board-actions">
-                  <button 
-                    className="icon-btn danger"
-                    onClick={() => deleteBoard(board.id)}
-                    title="Eliminar tablero"
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              </div>
-
-              <div className="add-list-container">
-                <input
-                  type="text"
-                  placeholder="Nombre de la nueva lista"
-                  value={newListTitles[board.id] || ""}
-                  onChange={(e) =>
-                    setNewListTitles((prev) => ({ ...prev, [board.id]: e.target.value }))
-                  }
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && addList(board.id)
-                  }
-                />
-                <button className="add-btn" onClick={() => addList(board.id)}>
-                  <FiPlus /> Añadir Lista
+                <button className="delete-btn" onClick={() => deleteBoard(board.id)}>
+                  <FiTrash2 />
                 </button>
               </div>
 
@@ -346,32 +322,25 @@ const ToDoList = () => {
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                         className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+                        style={{ display: 'flex', flexDirection: 'column', maxHeight: 600 }}
                       >
                         <div className="list-header">
                           {editingList === list.id ? (
                             <input
                               type="text"
                               defaultValue={list.title}
-                              autoFocus
                               onBlur={(e) => updateListTitle(list.id, board.id, e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && updateListTitle(list.id, board.id, e.target.value)}
+                              autoFocus
                             />
                           ) : (
                             <h3 onClick={() => setEditingList(list.id)}>{list.title}</h3>
                           )}
-                          <div className="list-actions">
-                            <span className="task-count">{list.tasks.length}</span>
-                            <button 
-                              className="icon-btn danger"
-                              onClick={() => deleteList(list.id, board.id)}
-                              title="Eliminar lista"
-                            >
-                              <FiX />
-                            </button>
-                          </div>
+                          <button className="delete-btn" onClick={() => deleteList(list.id, board.id)}>
+                            <FiX />
+                          </button>
                         </div>
 
-                        <div className="tasks-container">
+                        <div className="tasks-container" style={{ overflowY: 'auto', maxHeight: 450, marginBottom: 8 }}>
                           {list.tasks.map((task, index) => (
                             <Draggable
                               key={task.id}
@@ -380,49 +349,37 @@ const ToDoList = () => {
                             >
                               {(provided, snapshot) => (
                                 <div
+                                  className={`task ${snapshot.isDragging ? 'dragging' : ''}`}
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`task-card ${snapshot.isDragging ? 'dragging' : ''}`}
                                 >
                                   {editingTask === task.id ? (
                                     <div className="task-edit-form">
                                       <input
                                         type="text"
                                         defaultValue={task.content}
+                                        onBlur={(e) => updateTaskContent(task.id, list.id, board.id, e.target.value, task.description)}
                                         autoFocus
-                                        onBlur={(e) => updateTaskContent(task.id, list.id, board.id, e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && updateTaskContent(task.id, list.id, board.id, e.target.value)}
                                       />
                                       <textarea
                                         defaultValue={task.description}
+                                        onBlur={(e) => updateTaskContent(task.id, list.id, board.id, task.content, e.target.value)}
                                         placeholder="Descripción (opcional)"
-                                        onBlur={(e) => updateTaskContent(task.id, list.id, board.id, null, e.target.value)}
                                       />
-                                      <button 
-                                        className="save-btn"
-                                        onClick={() => setEditingTask(null)}
-                                      >
-                                        Guardar
-                                      </button>
                                     </div>
                                   ) : (
-                                    <>
-                                      <div className="task-content" onClick={() => setEditingTask(task.id)}>
-                                        <div className="task-title">{task.content}</div>
-                                        {task.description && (
-                                          <div className="task-description">{task.description}</div>
-                                        )}
-                                      </div>
-                                      <button 
-                                        className="icon-btn danger"
-                                        onClick={() => deleteTask(task.id, list.id, board.id)}
-                                        title="Eliminar tarea"
-                                      >
-                                        <FiX />
-                                      </button>
-                                    </>
+                                    <div onClick={() => setEditingTask(task.id)}>
+                                      <p>{task.content}</p>
+                                      {task.description && <small>{task.description}</small>}
+                                    </div>
                                   )}
+                                  <button
+                                    className="delete-btn"
+                                    onClick={() => deleteTask(task.id, list.id, board.id)}
+                                  >
+                                    <FiX />
+                                  </button>
                                 </div>
                               )}
                             </Draggable>
@@ -430,23 +387,25 @@ const ToDoList = () => {
                           {provided.placeholder}
                         </div>
 
-                        <div className="add-task-container">
+                        <div className="add-task-container" style={{ flexShrink: 0, paddingTop: 8, borderTop: '1px solid #ccc' }}>
                           <input
                             type="text"
                             placeholder="Nueva tarea"
                             value={taskInputs[list.id] || ''}
-                            onChange={(e) => setTaskInputs(prev => ({ ...prev, [list.id]: e.target.value }))}
+                            onChange={(e) =>
+                              setTaskInputs(prev => ({ ...prev, [list.id]: e.target.value }))
+                            }
                             onKeyPress={(e) => e.key === 'Enter' && addTask(list.id, board.id)}
                           />
                           <textarea
                             placeholder="Descripción (opcional)"
                             value={taskDescriptions[list.id] || ''}
-                            onChange={(e) => setTaskDescriptions(prev => ({ ...prev, [list.id]: e.target.value }))}
+                            onChange={(e) =>
+                              setTaskDescriptions(prev => ({ ...prev, [list.id]: e.target.value }))
+                            }
+                            onKeyPress={(e) => e.key === 'Enter' && addTask(list.id, board.id)}
                           />
-                          <button 
-                            className="add-btn"
-                            onClick={() => addTask(list.id, board.id)}
-                          >
+                          <button onClick={() => addTask(list.id, board.id)}>
                             <FiPlus /> Añadir Tarea
                           </button>
                         </div>
@@ -454,6 +413,21 @@ const ToDoList = () => {
                     )}
                   </Droppable>
                 ))}
+
+                <div className="add-list-container">
+                  <input
+                    type="text"
+                    placeholder="Nueva lista"
+                    value={newListTitles[board.id] || ''}
+                    onChange={(e) =>
+                      setNewListTitles(prev => ({ ...prev, [board.id]: e.target.value }))
+                    }
+                    onKeyPress={(e) => e.key === 'Enter' && addList(board.id)}
+                  />
+                  <button onClick={() => addList(board.id)}>
+                    <FiPlus /> Añadir Lista
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -461,7 +435,6 @@ const ToDoList = () => {
       </div>
     </DragDropContext>
   );
-}
-
+};
 
 export default ToDoList;
