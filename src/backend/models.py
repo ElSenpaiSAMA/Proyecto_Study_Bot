@@ -1,5 +1,5 @@
-
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Double, TIMESTAMP
+# models.py
+from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, ForeignKey,Boolean,Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,20 +16,27 @@ class User(Base):
 
     study_schedules = relationship("StudySchedule", back_populates="user")
     boards = relationship("Board", back_populates="user")
+    chats = relationship("Chat", back_populates="user")
 
 class Chat(Base):
     __tablename__ = "chats"
     id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    title = Column(String(255))
+    created_at = Column(DateTime, server_default=func.now())
+    
+    user = relationship("User", back_populates="chats")
     messages = relationship("Message", back_populates="chat", cascade="all, delete")
 
 class Message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    sender = Column(String, nullable=False)
-    text = Column(String, nullable=False)
-    chat_id = Column(Integer, ForeignKey("chats.id"))
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"))
+    sender = Column(Enum('user', 'ai'), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    
     chat = relationship("Chat", back_populates="messages")
-
 
 class StudySchedule(Base):
     __tablename__ = "study_schedules"
@@ -43,7 +50,6 @@ class StudySchedule(Base):
     reminder = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
     
-    # Relación con user
     user = relationship("User", back_populates="study_schedules")
 
 class Board(Base):
@@ -53,8 +59,8 @@ class Board(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title = Column(String(255), nullable=False)
     color = Column(String(7), nullable=False)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="boards")
     lists = relationship("List", back_populates="board", cascade="all, delete")
@@ -65,9 +71,9 @@ class List(Base):
     id = Column(Integer, primary_key=True, index=True)
     board_id = Column(Integer, ForeignKey("boards.id", ondelete="CASCADE"), nullable=False)
     title = Column(String(255), nullable=False)
-    position = Column(Double, nullable=False)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    position = Column(Float, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     board = relationship("Board", back_populates="lists")
     tasks = relationship("Task", back_populates="list", cascade="all, delete")
@@ -79,8 +85,8 @@ class Task(Base):
     list_id = Column(Integer, ForeignKey("lists.id", ondelete="CASCADE"), nullable=False)
     content = Column(Text, nullable=False)
     description = Column(Text)
-    position = Column(Double, nullable=False)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    position = Column(Float, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     list = relationship("List", back_populates="tasks")
